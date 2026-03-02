@@ -62,9 +62,6 @@ dependencies:
   # 刷新组件
   easy_refresh: ^3.4.0
 
-  # html显示
-  flutter_widget_from_html: ^0.17.1
-
   # 可展开的text
   expandable_text: 2.3.0
 

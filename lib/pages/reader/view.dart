@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hikari_novel_flutter/common/log.dart';
 import 'package:hikari_novel_flutter/models/reader_direction.dart';
 import 'package:hikari_novel_flutter/pages/reader/controller.dart';
 import 'package:hikari_novel_flutter/pages/reader/widgets/custom_header.dart';
@@ -21,6 +22,8 @@ class ReaderPage extends StatelessWidget {
   ReaderPage({super.key});
 
   final controller = Get.put(ReaderController());
+
+  final GlobalKey<VerticalReadPageState> _verticalReadPageKey = GlobalKey();
 
   EdgeInsets get padding => EdgeInsets.fromLTRB(
     controller.readerSettingsState.value.leftMargin,
@@ -241,12 +244,12 @@ class ReaderPage extends StatelessWidget {
         onRefresh: controller.prevChapter,
         onLoad: controller.nextChapter,
         child: VerticalReadPage(
+          key: _verticalReadPageKey,
           controller.text.value,
           controller.images,
-          initPosition: controller.getInitLocation(),
+          initialOffset: controller.getInitLocation(),
           padding: padding,
           style: textStyle,
-          controller: controller.scrollController,
           onScroll: (position, max) {
             if (max == 0 && position == 0) {
               //仅一页的情况下
@@ -255,7 +258,7 @@ class ReaderPage extends StatelessWidget {
               controller.setReadHistory(); //立即更新历史阅读记录
             } else if (max > 0) {
               controller.currentLocation.value = position.toInt();
-              controller.verticalProgress.value = ((position.toInt() / max.toInt()) * 100).toInt();
+              controller.verticalProgress.value = ((position.toInt() / max.toInt()) * 100).clamp(0, 100).toInt();
               //由controller的debounce监听location变化，判断是否更新历史阅读记录
             }
           },
@@ -303,7 +306,7 @@ class ReaderPage extends StatelessWidget {
             controller.horizontalProgress.value = 100;
             controller.setReadHistory(); //立即更新历史阅读记录
           } else if (max > 0) {
-            controller.horizontalProgress.value = int.parse(((index + 1) / max * 100.0).toStringAsFixed(0));
+            controller.horizontalProgress.value = int.parse(((index + 1) / max * 100.0).toStringAsFixed(0)).clamp(0, 100);
             //由controller的debounce监听currentIndex变化，判断是否更新历史阅读记录
           }
         },
@@ -330,7 +333,7 @@ class ReaderPage extends StatelessWidget {
                   value: value.toDouble(),
                   max: 100.0,
                   onChanged: (e) {
-                    controller.scrollController.jumpTo(controller.scrollController.position.maxScrollExtent * (e / 100.0));
+                    _verticalReadPageKey.currentState!.jumpToProgress(e);
                   },
                   divisions: 99,
                 ),

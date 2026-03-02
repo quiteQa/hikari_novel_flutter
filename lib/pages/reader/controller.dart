@@ -42,7 +42,6 @@ class ReaderController extends GetxController {
   int get currentVolumeTotal => catalogue.length;
 
   final pageController = PageController();
-  final scrollController = ScrollController();
 
   final _battery = Battery();
   RxInt batteryLevel = 0.obs;
@@ -116,8 +115,8 @@ class ReaderController extends GetxController {
     //延迟更新阅读记录
     //debounce / ever / interval 只能在 Controller 生命周期里创建一次
     //TODO 还需要优化
-    interval(currentLocation, (_) => setReadHistory(), time: const Duration(milliseconds: 500));
-    interval(currentIndex, (_) => setReadHistory(), time: const Duration(milliseconds: 500));
+    debounce(currentLocation, (_) => setReadHistory(), time: const Duration(milliseconds: 100));
+    debounce(currentIndex, (_) => setReadHistory(), time: const Duration(milliseconds: 100));
   }
 
   @override
