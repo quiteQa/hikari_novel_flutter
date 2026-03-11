@@ -289,6 +289,15 @@ class AppTranslations extends Translations {
       "copy_all": "复制全部",
       "free_copy": "自由复制",
       "cloudflare_403_exception_tip": "你的IP已被Cloudflare拒绝访问，请使用其他IP进行访问",
+      "token_login": "Token 登录",
+      "token_login_title": "Token 快速登录",
+      "token_login_description": "如果您已有 Wenku8 的登录 Token，可直接在此输入进行快速登录",
+      "token_label": "Token",
+      "token_hint": "请输入您的登录 Token（jieqiUserInfo）",
+      "please_enter_token": "请输入 Token",
+      "invalid_token": "Token 无效，请检查后重试",
+      "login_failed": "登录失败",
+      "clear_token": "清除 Token",
     },
 
     "zh_TW": {
