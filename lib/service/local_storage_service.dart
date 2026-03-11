@@ -20,6 +20,7 @@ class LocalStorageService extends GetxService {
   late final Box<dynamic> _reader;
 
   static const String kCookie = "cookie",
+      kToken = "token",
       kUserInfo = "user_info",
       kLanguage = "language",
       kIsAutoCheckUpdate = "isAutoCheckUpdate",
@@ -72,6 +73,10 @@ class LocalStorageService extends GetxService {
   void setCookie(String? value) => _loginInfo.put(kCookie, value);
 
   String? getCookie() => _loginInfo.get(kCookie);
+
+  void setToken(String? value) => _loginInfo.put(kToken, value);
+
+  String? getToken() => _loginInfo.get(kToken);
 
   void setUserInfo(UserInfo value) => _setting.put(kUserInfo, value);
 

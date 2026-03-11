@@ -5,6 +5,8 @@ class RoutePath {
 
   static const login = "/login";
 
+  static const tokenLogin = "/token_login";
+
   static const account = "/account";
 
   static const novelDetail = "/novel_detail";

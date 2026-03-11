@@ -103,6 +103,20 @@ class LoginPage extends StatelessWidget {
                 child: ErrorMessage(msg: controller.errorMsg, action: () => Get.offAllNamed(RoutePath.welcome), buttonText: "re_login".tr),
               ),
             ),
+            // Token 登录入口
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: ElevatedButton.icon(
+                onPressed: () => Get.toNamed(RoutePath.tokenLogin),
+                icon: const Icon(Icons.key),
+                label: Text('token_login'.tr),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ),
           ],
         ),
       ),

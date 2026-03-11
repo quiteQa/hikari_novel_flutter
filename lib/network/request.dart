@@ -50,6 +50,14 @@ class Request {
     _dioCookieJar.saveFromResponse(Uri.parse(Wenku8Node.wwwWenku8Net.node), cookies);
   }
 
+  static void initToken() {
+    final token = LocalStorageService.instance.getToken();
+    if (token == null || token.isEmpty) return;
+
+    // 设置 Authorization header 或 cookie
+    dio.options.headers['Cookie'] = "jieqiUserInfo=$token";
+  }
+
   static void deleteCookie() => _dioCookieJar.deleteAll();
 
   ///获取通用数据（如其他网站的数据，即不用wenku8的cookie）

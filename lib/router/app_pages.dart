@@ -6,6 +6,7 @@ import 'package:hikari_novel_flutter/pages/dev_tools/view.dart';
 import 'package:hikari_novel_flutter/pages/comment/view.dart';
 import 'package:hikari_novel_flutter/pages/home/view.dart';
 import 'package:hikari_novel_flutter/pages/login/view.dart';
+import 'package:hikari_novel_flutter/pages/login/token_login_view.dart';
 import 'package:hikari_novel_flutter/pages/main/view.dart';
 import 'package:hikari_novel_flutter/pages/novel_detail/view.dart';
 import 'package:hikari_novel_flutter/pages/photo/view.dart';
@@ -27,6 +28,7 @@ class AppRoutes {
     CustomGetPage(name: RoutePath.main, page: () => MainPage()),
     CustomGetPage(name: RoutePath.home, page: () => HomePage()),
     CustomGetPage(name: RoutePath.login, page: () => LoginPage()),
+    CustomGetPage(name: RoutePath.tokenLogin, page: () => TokenLoginPage()),
     CustomGetPage(name: RoutePath.photo, page: () => PhotoPage()),
     CustomGetPage(name: RoutePath.reader, page: () => ReaderPage()),
     CustomGetPage(name: RoutePath.welcome, page: () => WelcomePage()),
