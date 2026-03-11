@@ -8,8 +8,6 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = Theme.of(context).colorScheme.primary;
-    
     return Scaffold(
       body: Center(
         child: Column(
@@ -20,40 +18,8 @@ class WelcomePage extends StatelessWidget {
             Text("welcome_to_use_app".tr, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
             const SizedBox(height: 4),
             Text("welcome_tip".tr, style: TextStyle(fontSize: 14)),
-            const SizedBox(height: 32),
-            // 网页登录按钮
-            SizedBox(
-              width: 200,
-              child: ElevatedButton.icon(
-                onPressed: () => Get.toNamed(RoutePath.login),
-                icon: const Icon(Icons.login),
-                label: Text("go_to_login".tr),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Token 登录按钮
-            SizedBox(
-              width: 200,
-              child: OutlinedButton.icon(
-                onPressed: () => Get.toNamed(RoutePath.tokenLogin),
-                icon: const Icon(Icons.key),
-                label: Text("token_login".tr),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  foregroundColor: themeColor,
-                  side: BorderSide(color: themeColor),
-                ),
-              ),
-            ),
+            const SizedBox(height: 20),
+            TextButton.icon(onPressed: () => Get.toNamed(RoutePath.login), label: Text("go_to_login".tr), icon: const Icon(Icons.login))
           ],
         ),
       ),
