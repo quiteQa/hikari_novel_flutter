@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/models/resource.dart';
 
 import '../../common/database/database.dart';
+import '../../common/database/entity.dart';
 import '../../common/log.dart';
 import '../../network/api.dart';
 import '../../network/parser.dart';
@@ -38,20 +40,13 @@ class TokenLoginController extends GetxController {
       Request.initCookie();
 
       // 获取用户信息验证 token 是否有效
-      final userInfo = await _getUserInfo();
+      await _getUserInfo();
       
-      if (userInfo != null) {
-        // 刷新书架
-        await _refreshBookshelf();
-        
-        // 登录成功，跳转到主页
-        Get.offAllNamed(RoutePath.main);
-      } else {
-        // Token 无效，清空
-        LocalStorageService.instance.setCookie(null);
-        Request.deleteCookie();
-        errorMessage.value = 'invalid_token'.tr;
-      }
+      // 刷新书架
+      await _refreshBookshelf();
+      
+      // 登录成功，跳转到主页
+      Get.offAllNamed(RoutePath.main);
     } catch (e) {
       Log.e('Token login error: $e');
       LocalStorageService.instance.setCookie(null);
@@ -70,13 +65,12 @@ class TokenLoginController extends GetxController {
     Request.deleteCookie();
   }
 
-  Future<Map<String, dynamic>?> _getUserInfo() async {
+  Future<void> _getUserInfo() async {
     final data = await Api.getUserInfo();
     switch (data) {
       case Success():
         final userInfo = Parser.getUserInfo(data.data);
         LocalStorageService.instance.setUserInfo(userInfo);
-        return userInfo;
       case Error():
         throw data.error;
     }
@@ -95,9 +89,19 @@ class TokenLoginController extends GetxController {
     final data = await Api.getBookshelf(classId: index);
     switch (data) {
       case Success():
-        final list = Parser.getBookshelf(data.data, classId: index);
-        if (list.isNotEmpty) {
-          await DBService.instance.insertBookshelf(list);
+        final bookshelf = Parser.getBookshelf(data.data, index);
+        if (bookshelf.list.isNotEmpty) {
+          final insertData = bookshelf.list.map((e) {
+            return BookshelfEntityData(
+              aid: e.aid,
+              bid: e.bid,
+              url: e.url,
+              title: e.title,
+              img: e.img,
+              classId: index.toString(),
+            );
+          }).toList();
+          await DBService.instance.insertAllBookshelf(insertData);
         }
       case Error():
         // 忽略错误，继续获取其他书架

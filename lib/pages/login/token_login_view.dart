@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../router/route_path.dart';
 import 'controller.dart';
+import 'token_login_controller.dart';
+
+import '../../router/route_path.dart';
 
 class TokenLoginPage extends StatelessWidget {
   TokenLoginPage({super.key});
@@ -91,7 +93,7 @@ class TokenLoginPage extends StatelessWidget {
             ),
             const Spacer(),
             Obx(
-              () => controller.errorMessage.isNotEmpty
+              () => controller.errorMessage.value.isNotEmpty
                   ? Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -107,7 +109,7 @@ class TokenLoginPage extends StatelessWidget {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              controller.errorMessage,
+                              controller.errorMessage.value,
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onErrorContainer,
                               ),
