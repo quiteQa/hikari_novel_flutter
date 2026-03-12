@@ -39,6 +39,7 @@ class LocalStorageService extends GetxService {
       kReaderTopMargin = "readerTopMargin",
       kReaderRightMargin = "readerRightMargin",
       kReaderBottomMargin = "readerBottomMargin",
+      kReaderSafeAreaTop = "readerSafeAreaTop",
       kReaderDualPageMode = "readerDualPageMode",
       kReaderDualPageSpacing = "readerDualPageSpacing",
       kReaderImmersionMode = "readerImmersionMode",
@@ -141,6 +142,10 @@ class LocalStorageService extends GetxService {
   double getReaderBottomMargin() => _reader.get(kReaderBottomMargin, defaultValue: 20.0);
 
   void setReaderBottomMargin(double value) => _reader.put(kReaderBottomMargin, value);
+
+  double? getReaderSafeAreaTop() => _reader.get(kReaderSafeAreaTop);
+
+  void setReaderSafeAreaTop(double value) => _reader.put(kReaderSafeAreaTop, value);
 
   DualPageMode getReaderDualPageMode() => DualPageMode.values[_reader.get(kReaderDualPageMode, defaultValue: DualPageMode.auto.index)];
 

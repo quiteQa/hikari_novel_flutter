@@ -24,7 +24,7 @@ class ReaderPage extends StatelessWidget {
 
   EdgeInsets get padding => EdgeInsets.fromLTRB(
     controller.readerSettingsState.value.leftMargin,
-    controller.readerSettingsState.value.topMargin,
+    controller.readerSettingsState.value.topMargin + controller.readerSettingsState.value.safeAreaTop,
     controller.readerSettingsState.value.rightMargin,
     controller.readerSettingsState.value.showStatusBar
         ? controller.readerSettingsState.value.bottomMargin + kStatusBarPadding

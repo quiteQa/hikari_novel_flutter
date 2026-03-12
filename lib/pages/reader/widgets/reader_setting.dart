@@ -34,7 +34,7 @@ class ReaderSettingPage extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(children: [_buildBasic(context), _buildTheme(context), _buildListen(context), _buildPadding()]),
+        body: TabBarView(children: [_buildBasic(context), _buildTheme(context), _buildListen(context), _buildPadding(context)]),
       ),
     );
   }
@@ -410,7 +410,7 @@ class ReaderSettingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPadding() {
+  Widget _buildPadding(BuildContext context) {
     return ListView(
       children: [
         Obx(
@@ -463,6 +463,53 @@ class ReaderSettingPage extends StatelessWidget {
             value: controller.readerSettingsState.value.bottomMargin,
             onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(bottomMargin: value),
             onChangeEnd: (value) => controller.changeBottomMargin(value),
+          ),
+        ),
+        Divider(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text("safe_area".tr, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
+        Obx(
+          () => SliderTile(
+            title: "top_safe_area".tr,
+            leading: const Icon(Icons.visibility_outlined),
+            min: 0,
+            max: 100,
+            divisions: 100,
+            decimalPlaces: 0,
+            value: controller.readerSettingsState.value.safeAreaTop,
+            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(safeAreaTop: value),
+            onChangeEnd: (value) => controller.changeSafeAreaTop(value),
+          ),
+        ),
+        Divider(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text("reading_mode".tr, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
+        Obx(
+          () => NormalTile(
+            title: "reading_direction".tr,
+            subtitle: controller.readerSettingsState.value.direction == ReaderDirection.upToDown ? "scroll_read_mode".tr : "horizontal_read_mode".tr,
+            leading: Icon(
+              controller.readerSettingsState.value.direction == ReaderDirection.upToDown ? Icons.touch_app : Icons.menu_book,
+            ),
+            trailing: const Icon(Icons.keyboard_arrow_down),
+            onTap: () =>
+                Get.dialog(
+                  RadioListDialog(
+                    value: controller.readerSettingsState.value.direction,
+                    values: [
+                      (ReaderDirection.upToDown, "scroll".tr),
+                      (ReaderDirection.leftToRight, "left_to_right".tr),
+                      (ReaderDirection.rightToLeft, "right_to_left".tr),
+                    ],
+                    title: "reading_direction".tr,
+                  ),
+                ).then((value) {
+                  if (value != null) controller.changeReaderDirection(value);
+                }),
           ),
         ),
       ],

@@ -351,6 +351,11 @@ class ReaderController extends GetxController {
     LocalStorageService.instance.setReaderBottomMargin(value);
   }
 
+  void changeSafeAreaTop(double value) {
+    readerSettingsState.value = readerSettingsState.value.copyWith(safeAreaTop: value);
+    LocalStorageService.instance.setReaderSafeAreaTop(value);
+  }
+
   void changeDualPageMode(DualPageMode mode) {
     readerSettingsState.value = readerSettingsState.value.copyWith(dualPageMode: mode);
     LocalStorageService.instance.setReaderDualPageMode(mode);
@@ -594,6 +599,7 @@ class ReaderSettingsState {
   final double topMargin;
   final double rightMargin;
   final double bottomMargin;
+  final double safeAreaTop;
   final Color? textColor;
   final Color? bgColor;
   final String? textStyleFilePath;
@@ -620,6 +626,7 @@ class ReaderSettingsState {
     required this.topMargin,
     required this.rightMargin,
     required this.bottomMargin,
+    required this.safeAreaTop,
     required this.textColor,
     required this.bgColor,
     required this.textStyleFilePath,
@@ -647,6 +654,7 @@ class ReaderSettingsState {
     double? topMargin,
     double? rightMargin,
     double? bottomMargin,
+    double? safeAreaTop,
     Color? textColor,
     Color? bgColor,
     String? textStyleFilePath,
@@ -672,6 +680,7 @@ class ReaderSettingsState {
     topMargin: topMargin ?? this.topMargin,
     rightMargin: rightMargin ?? this.rightMargin,
     bottomMargin: bottomMargin ?? this.bottomMargin,
+    safeAreaTop: safeAreaTop ?? this.safeAreaTop,
     textColor: textColor ?? this.textColor,
     bgColor: bgColor ?? this.bgColor,
     textStyleFilePath: textStyleFilePath ?? this.textStyleFilePath,
@@ -699,6 +708,7 @@ class ReaderSettingsState {
       topMargin = LocalStorageService.instance.getReaderTopMargin(),
       rightMargin = LocalStorageService.instance.getReaderRightMargin(),
       bottomMargin = LocalStorageService.instance.getReaderBottomMargin(),
+      safeAreaTop = LocalStorageService.instance.getReaderSafeAreaTop() ?? 0.0,
       textColor = LocalStorageService.instance.getReaderDayTextColor(),
       bgColor = LocalStorageService.instance.getReaderDayBgColor(),
       textStyleFilePath = LocalStorageService.instance.getReaderTextStyleFilePath(),
