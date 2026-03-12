@@ -40,9 +40,16 @@ class ReaderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          controller.goBack(context);
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
           Obx(
             () => controller.pageState.value == PageState.success
                 ? GestureDetector(
@@ -204,6 +211,7 @@ class ReaderPage extends StatelessWidget {
           }),
         ],
       ),
+    ),
     );
   }
 

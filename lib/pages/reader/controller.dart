@@ -24,6 +24,7 @@ import '../../common/log.dart';
 import '../../models/cat_volume.dart';
 import '../../models/page_state.dart';
 import '../../network/api.dart';
+import '../../router/route_path.dart';
 import '../../service/db_service.dart';
 import '../../service/local_storage_service.dart';
 
@@ -356,6 +357,20 @@ class ReaderController extends GetxController {
     LocalStorageService.instance.setReaderSafeAreaTop(value);
   }
 
+  void changeVolumeKeyPageTurning(bool enabled) {
+    readerSettingsState.value = readerSettingsState.value.copyWith(volumeKeyPageTurning: enabled);
+    LocalStorageService.instance.setReaderVolumeKeyPageTurning(enabled);
+  }
+
+  void goBack(BuildContext context) {
+    final novelDetailController = Get.find<NovelDetailController>();
+    if (novelDetailController.aid == aid) {
+      Get.back();
+    } else {
+      Get.offAndToNamed(RoutePath.novelDetail, arguments: aid);
+    }
+  }
+
   void changeDualPageMode(DualPageMode mode) {
     readerSettingsState.value = readerSettingsState.value.copyWith(dualPageMode: mode);
     LocalStorageService.instance.setReaderDualPageMode(mode);
@@ -600,6 +615,7 @@ class ReaderSettingsState {
   final double rightMargin;
   final double bottomMargin;
   final double safeAreaTop;
+  final bool volumeKeyPageTurning;
   final Color? textColor;
   final Color? bgColor;
   final String? textStyleFilePath;
@@ -627,6 +643,7 @@ class ReaderSettingsState {
     required this.rightMargin,
     required this.bottomMargin,
     required this.safeAreaTop,
+    required this.volumeKeyPageTurning,
     required this.textColor,
     required this.bgColor,
     required this.textStyleFilePath,
@@ -655,6 +672,7 @@ class ReaderSettingsState {
     double? rightMargin,
     double? bottomMargin,
     double? safeAreaTop,
+    bool? volumeKeyPageTurning,
     Color? textColor,
     Color? bgColor,
     String? textStyleFilePath,
@@ -681,6 +699,7 @@ class ReaderSettingsState {
     rightMargin: rightMargin ?? this.rightMargin,
     bottomMargin: bottomMargin ?? this.bottomMargin,
     safeAreaTop: safeAreaTop ?? this.safeAreaTop,
+    volumeKeyPageTurning: volumeKeyPageTurning ?? this.volumeKeyPageTurning,
     textColor: textColor ?? this.textColor,
     bgColor: bgColor ?? this.bgColor,
     textStyleFilePath: textStyleFilePath ?? this.textStyleFilePath,
@@ -709,6 +728,7 @@ class ReaderSettingsState {
       rightMargin = LocalStorageService.instance.getReaderRightMargin(),
       bottomMargin = LocalStorageService.instance.getReaderBottomMargin(),
       safeAreaTop = LocalStorageService.instance.getReaderSafeAreaTop() ?? 0.0,
+      volumeKeyPageTurning = LocalStorageService.instance.getReaderVolumeKeyPageTurning(),
       textColor = LocalStorageService.instance.getReaderDayTextColor(),
       bgColor = LocalStorageService.instance.getReaderDayBgColor(),
       textStyleFilePath = LocalStorageService.instance.getReaderTextStyleFilePath(),

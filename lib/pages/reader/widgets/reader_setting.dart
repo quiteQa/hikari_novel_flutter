@@ -512,6 +512,20 @@ class ReaderSettingPage extends StatelessWidget {
                 }),
           ),
         ),
+        Divider(height: 24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text("operation".tr, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        ),
+        Obx(
+          () => SwitchTile(
+            title: "volume_key_page_turning".tr,
+            subtitle: "volume_key_page_turning_subtitle".tr,
+            leading: const Icon(Icons.volume_up_outlined),
+            value: controller.readerSettingsState.value.volumeKeyPageTurning,
+            onChanged: (value) => controller.changeVolumeKeyPageTurning(value),
+          ),
+        ),
       ],
     );
   }
