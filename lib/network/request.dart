@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
 
@@ -26,6 +27,8 @@ class Request {
         'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'Accept-Language': 
         'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'Accept-Charset': 
+        'GBK,utf-8;q=0.7,*;q=0.3', // 添加 GBK 支持
     'Accept-Encoding': 
         'gzip, deflate, br',
     'Sec-Ch-Ua': 
@@ -125,9 +128,15 @@ class Request {
       late String decodedHtml;
       switch (charsetsType) {
         case CharsetsType.gbk:
-          decodedHtml = GbkDecoder().convert(raw);
+          try {
+            decodedHtml = GbkCodec().decode(raw);
+          } catch (e) {
+            // 如果 GBK 解码失败，尝试使用 utf-8 作为备选
+            Log.w('GBK 解码失败，尝试 UTF-8: $e');
+            decodedHtml = utf8.decode(raw, allowMalformed: true);
+          }
         case CharsetsType.big5Hkscs:
-          decodedHtml = Big5Decoder().convert(raw);
+          decodedHtml = Big5Codec().decode(raw);
       }
 
       return Success(decodedHtml);
