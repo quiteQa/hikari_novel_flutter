@@ -285,8 +285,32 @@ class NovelDetailController extends GetxController with GetSingleTickerProviderS
             );
             isInBookshelf.value = false;
           } else {
+            // 刷新书架并检查是否真的添加成功
             await bookshelfController.refreshDefaultBookshelf();
-            isInBookshelf.value = true;
+            final bs = await DBService.instance.getAllBookshelf();
+            if (bs.any((e) => e.aid == aid)) {
+              // 真的添加成功了
+              isInBookshelf.value = true;
+              Get.dialog(
+                AlertDialog(
+                  icon: const Icon(Icons.check_circle_outline),
+                  title: Text("success".tr),
+                  content: Text("add_to_bookshelf_success_tip".tr),
+                  actions: [TextButton(onPressed: Get.back, child: Text("confirm".tr))],
+                ),
+              );
+            } else {
+              // 添加失败，但 Wenku8 没有返回错误信息
+              Get.dialog(
+                AlertDialog(
+                  icon: const Icon(Icons.warning_amber_outlined),
+                  title: Text("warning".tr),
+                  content: Text("add_to_bookshelf_failed_tip"),
+                  actions: [TextButton(onPressed: Get.back, child: Text("confirm".tr))],
+                ),
+              );
+              isInBookshelf.value = false;
+            }
           }
         }
       case Error():

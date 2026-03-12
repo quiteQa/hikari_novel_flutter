@@ -183,6 +183,8 @@ class AppTranslations extends Translations {
       "dual_page_spacing": "双页页距",
       "font": "字体",
       "add_to_bookshelf_failed_tip": "添加失败，可能是重复添加或者是超出了书架的最大可收藏数",
+      "add_to_bookshelf_success_tip": "添加成功！",
+
       "color_set_successfully": "颜色设置成功",
       "system_font": "系统字体",
       "custom_font": "自定义字体",
@@ -480,6 +482,8 @@ class AppTranslations extends Translations {
       "dual_page_spacing": "雙頁間距",
       "font": "字體",
       "add_to_bookshelf_failed_tip": "加入失敗，可能重複或已達收藏上限",
+      "add_to_bookshelf_success_tip": "加入成功！",
+
       "color_set_successfully": "顏色設定成功",
       "system_font": "系統字體",
       "custom_font": "自訂字體",

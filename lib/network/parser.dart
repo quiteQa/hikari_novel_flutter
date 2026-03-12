@@ -475,6 +475,32 @@ class Parser {
       return false;
     }
 
+    // 检测各种错误情况
+    final errorKeywords = [
+      '出现错误！',
+      '出現錯誤！',
+      '书架已满',
+      '書架已滿',
+      '超出书架',
+      '超出書架',
+      '最大可收藏',
+      '最大可收藏數',
+      '请先登录',
+      '請先登錄',
+      '您还没有登录',
+      '您還沒有登錄',
+      '重复添加',
+      '重複添加',
+      '已经收藏',
+      '已經收藏',
+    ];
+
+    for (final keyword in errorKeywords) {
+      if (t.contains(keyword) || html.contains(keyword)) {
+        return true;
+      }
+    }
+
     return t == '出现错误！' || t == '出現錯誤！';
   }
 
