@@ -26,7 +26,7 @@ class LoginController extends GetxController {
   final GlobalKey webViewKey = GlobalKey();
   final InAppWebViewSettings settings = InAppWebViewSettings(
     isInspectable: kDebugMode,
-    userAgent: Request.userAgent[HttpHeaders.userAgentHeader],
+    userAgent: Request.cfBypassHeaders[HttpHeaders.userAgentHeader],
     javaScriptEnabled: true,
   );
   RxString currentUrl = "".obs;

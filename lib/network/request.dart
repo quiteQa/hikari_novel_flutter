@@ -18,19 +18,48 @@ import 'api.dart';
 
 /// 网络请求
 class Request {
-  static const userAgent = {
-    io.HttpHeaders.userAgentHeader:
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
+  // 绕过 Cloudflare 的完整 headers
+  static const Map<String, String> cfBypassHeaders = {
+    io.HttpHeaders.userAgentHeader: 
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0',
+    'Accept': 
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+    'Accept-Language': 
+        'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'Accept-Encoding': 
+        'gzip, deflate, br',
+    'Sec-Ch-Ua': 
+        '"Not_A Brand";v="8", "Chromium";v="135", "Microsoft Edge";v="135"',
+    'Sec-Ch-Ua-Mobile': 
+        '?0',
+    'Sec-Ch-Ua-Platform': 
+        '"Windows"',
+    'Sec-Fetch-Dest': 
+        'document',
+    'Sec-Fetch-Mode': 
+        'navigate',
+    'Sec-Fetch-Site': 
+        'none',
+    'Sec-Fetch-User': 
+        '?1',
+    'Upgrade-Insecure-Requests': 
+        '1',
+    'Cache-Control': 
+        'max-age=0',
+    'Connection': 
+        'keep-alive',
   };
 
   static final _dioCookieJar = ckjar.CookieJar();
   static final Dio dio =
       Dio(
           BaseOptions(
-            headers: userAgent,
-            responseType: ResponseType.bytes, //使用bytes获取原始数据，方便解码
-            followRedirects: false, //使302重定向手动处理
+            headers: cfBypassHeaders, // 使用完整的反 CF headers
+            responseType: ResponseType.bytes, //使用 bytes 获取原始数据，方便解码
+            followRedirects: false, //使 302 重定向手动处理
             validateStatus: (status) => status != null, //只要不是 null，就交给拦截器处理,
+            sendTimeout: const Duration(seconds: 30), // 增加超时时间
+            receiveTimeout: const Duration(seconds: 30),
           ),
         )
         ..interceptors.add(CloudflareInterceptor())
@@ -64,7 +93,7 @@ class Request {
   /// - [url] 对应网站的url
   static Future<Resource> getCommonData(String url) async {
     try {
-      final dio = Dio(BaseOptions(headers: userAgent));
+      final dio = Dio(BaseOptions(headers: cfBypassHeaders));
       final response = await dio.get(url);
       return Success(response.data);
     } catch (e) {

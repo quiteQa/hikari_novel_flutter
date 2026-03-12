@@ -107,7 +107,7 @@ class _VerticalReadPageState extends State<VerticalReadPage> with WidgetsBinding
                   child: CachedNetworkImage(
                     width: double.infinity,
                     imageUrl: images[entry.key],
-                    httpHeaders: Request.userAgent,
+                    httpHeaders: Request.cfBypassHeaders,
                     fit: BoxFit.fitWidth,
                     progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
                     errorWidget: (context, url, error) => Column(children: [Icon(Icons.error_outline), Text(error.toString())]),

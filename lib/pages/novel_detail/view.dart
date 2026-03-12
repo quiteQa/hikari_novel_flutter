@@ -225,7 +225,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
               child: CachedNetworkImage(
                 width: double.infinity,
                 imageUrl: detail.imgUrl,
-                httpHeaders: Request.userAgent,
+                httpHeaders: Request.cfBypassHeaders,
                 fit: BoxFit.fitWidth,
                 progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
                 errorWidget: (context, url, error) => Column(children: [const Icon(Icons.error_outline), Text(error.toString())]),
@@ -264,7 +264,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                       width: 120,
                       height: 180,
                       imageUrl: detail.imgUrl,
-                      httpHeaders: Request.userAgent,
+                      httpHeaders: Request.cfBypassHeaders,
                       fit: BoxFit.cover,
                       progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
                       errorWidget: (context, url, error) => Column(children: [const Icon(Icons.error_outline), Text(error.toString())]),

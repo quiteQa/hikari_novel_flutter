@@ -51,7 +51,7 @@ class MyPage extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: controller.userInfo.value == null
                     ? const CircleAvatar()
-                    : CircleAvatar(backgroundImage: CachedNetworkImageProvider(controller.userInfo.value!.avatar, headers: Request.userAgent)),
+                    : CircleAvatar(backgroundImage: CachedNetworkImageProvider(controller.userInfo.value!.avatar, headers: Request.cfBypassHeaders)),
               ),
             ),
             const SizedBox(width: 2),

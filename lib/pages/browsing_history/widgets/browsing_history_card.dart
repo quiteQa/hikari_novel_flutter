@@ -31,7 +31,7 @@ class BrowsingHistoryCard extends StatelessWidget {
                   aspectRatio: 9 / 13,
                   child: CachedNetworkImage(
                     imageUrl: vh.img,
-                    httpHeaders: Request.userAgent,
+                    httpHeaders: Request.cfBypassHeaders,
                     fit: BoxFit.cover,
                     progressIndicatorBuilder:
                         (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),

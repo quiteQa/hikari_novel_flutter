@@ -27,7 +27,7 @@ class NovelCoverCard extends StatelessWidget {
               aspectRatio: 9 / 13.5,
               child: CachedNetworkImage(
                 imageUrl: novelCover.imageUrl!,
-                httpHeaders: Request.userAgent,
+                httpHeaders: Request.cfBypassHeaders,
                 fit: BoxFit.cover,
                 progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
                 errorWidget: (context, url, error) => Column(children: [Icon(Icons.error_outline), Text(error.toString())]),
@@ -91,7 +91,7 @@ class BookshelfCoverCard extends StatelessWidget {
                   aspectRatio: 9 / 13.5,
                   child: CachedNetworkImage(
                     imageUrl: bookshelfNovelInfo.img,
-                    httpHeaders: Request.userAgent,
+                    httpHeaders: Request.cfBypassHeaders,
                     fit: BoxFit.cover,
                     progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
                     errorWidget: (context, url, error) => Column(children: [Icon(Icons.error_outline), Text(error.toString())]),
