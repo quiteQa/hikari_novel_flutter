@@ -127,6 +127,8 @@ class ReaderController extends GetxController {
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: true);
     if (readerSettingsState.value.immersionMode) SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+    _setupVolumeKeyListener();
+
     /*
      1) 至于这里的cid为什么不直接使用上面的<get cid>，是因为上面的<get cid>依赖currentVolumeIndex和currentChapterIndex。
         而我们想要currentVolumeIndex和currentChapterIndex的时候，需要根据cid在catalogue中获取其对应的VolumeIndex和ChapterIndex。
@@ -144,11 +146,29 @@ class ReaderController extends GetxController {
     await getContent();
   }
 
+  void _setupVolumeKeyListener() {
+    SystemChannels.keyEvent.setMessageHandler((message) async {
+      if (!readerSettingsState.value.volumeKeyPageTurning) return null;
+      final keyData = message as Map<String, dynamic>;
+      final keyCode = keyData['keyCode'] as int?;
+      final keyDown = keyData['keydown'] as bool?;
+      if (keyDown == true && keyCode != null) {
+        if (keyCode == 24) {
+          prevPage();
+        } else if (keyCode == 25) {
+          nextPage();
+        }
+      }
+      return null;
+    });
+  }
+
   @override
   void onClose() {
     TtsService.instance.stop();
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: false);
     if (readerSettingsState.value.immersionMode) SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChannels.keyEvent.setMessageHandler(null);
     super.onClose();
   }
 
