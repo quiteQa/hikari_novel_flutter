@@ -160,17 +160,35 @@ class NovelDetailController extends GetxController with GetSingleTickerProviderS
   }
 
   Future<void> startCache() async {
-    for (var chap in getSelectedChapters()) {
-      await cacheQueueController.addTask(
-        ChapterCacheTask(
-          uuid: "${aid}_${chap.cid}",
-          aid: aid,
-          cid: chap.cid,
-          title: chap.title,
-          onCompleted: (cid) {
-            cachedChapter.add(cid);
-          },
+    final chapters = getSelectedChapters();
+    if (chapters.isEmpty) return;
+    
+    final newTasks = chapters.map((chap) => ChapterCacheTask(
+      uuid: "${aid}_${chap.cid}",
+      aid: aid,
+      cid: chap.cid,
+      title: chap.title,
+      onCompleted: (cid) {
+        cachedChapter.add(cid);
+      },
+    )).toList();
+    
+    final result = await cacheQueueController.addTasks(newTasks);
+    
+    if (result == -1) {
+      Get.dialog(
+        AlertDialog(
+          icon: const Icon(Icons.warning_amber_outlined),
+          title: Text("warning".tr),
+          content: Text("缓存队列已满，请先清理已完成任务".tr),
+          actions: [TextButton(onPressed: Get.back, child: Text("confirm".tr))],
         ),
+      );
+    } else if (result < chapters.length) {
+      Get.snackbar(
+        "提示".tr,
+        "已添加 $result 个任务，队列已满".tr,
+        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }

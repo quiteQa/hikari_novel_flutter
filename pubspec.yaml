@@ -98,6 +98,9 @@ dependencies:
   # json序列化
   json_annotation: ^4.9.0
 
+  # 不可变数据类
+  freezed_annotation: ^2.4.4
+
   # 调用外部浏览器
   url_launcher: ^6.3.2
 
@@ -126,7 +129,10 @@ dev_dependencies:
   hive_ce_generator: ^1.9.1
 
   # json序列化
-  json_serializable: ^6.10.0
+  json_serializable: ^6.9.5
+
+  # 不可变数据类代码生成
+  freezed: ^2.5.7
 
   # 设置应用图标
   flutter_launcher_icons: ^0.14.4

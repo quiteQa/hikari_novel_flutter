@@ -13,24 +13,68 @@ class CacheQueueController extends GetxService {
   //控制并发数量
   final int concurrency;
 
+  //最大任务数量限制
+  final int maxTasks;
+
   //内部状态
   bool _isProcessing = false;
   final Map<String, Future> _running = {}; // taskId -> future
 
-  CacheQueueController({this.concurrency = 1});
+  CacheQueueController({this.concurrency = 3, this.maxTasks = 50});
 
-  //添加任务，会自动去重（基于uuid）
-  Future<void> addTask(ChapterCacheTask t) async {
+  /// 添加任务，会自动去重（基于uuid）
+  /// 返回值：true=添加成功，false=超过限制，null=已存在
+  Future<bool?> addTask(ChapterCacheTask t) async {
     final idx = tasks.indexWhere((x) => x.uuid == t.uuid);
     if (idx != -1) {
       //已存在, 更新一些字段
       final old = tasks[idx];
       old.title = t.title;
       tasks[idx] = old;
-    } else {
-      tasks.add(t);
+      return null;
     }
+    
+    // 检查是否超过最大任务数量
+    if (tasks.length >= maxTasks) {
+      return false;
+    }
+    
+    tasks.add(t);
     startProcessing();
+    return true;
+  }
+  
+  /// 批量添加任务
+  /// 返回：成功添加的数量，-1表示超过限制
+  Future<int> addTasks(List<ChapterCacheTask> newTasks) async {
+    // 检查是否会超过限制
+    final currentCount = tasks.length;
+    final available = maxTasks - currentCount;
+    
+    if (available <= 0) {
+      return -1;
+    }
+    
+    int added = 0;
+    for (final t in newTasks) {
+      if (added >= available) break;
+      
+      final idx = tasks.indexWhere((x) => x.uuid == t.uuid);
+      if (idx != -1) {
+        // 已存在，更新字段
+        final old = tasks[idx];
+        old.title = t.title;
+        tasks[idx] = old;
+      } else {
+        tasks.add(t);
+        added++;
+      }
+    }
+    
+    if (added > 0) {
+      startProcessing();
+    }
+    return added;
   }
 
   Future<void> removeTask(String uuid) async {

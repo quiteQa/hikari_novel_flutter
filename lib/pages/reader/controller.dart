@@ -10,6 +10,7 @@ import 'package:hikari_novel_flutter/common/constants.dart';
 import 'package:hikari_novel_flutter/common/extension.dart';
 import 'package:hikari_novel_flutter/models/dual_page_mode.dart';
 import 'package:hikari_novel_flutter/models/reader_direction.dart';
+import 'package:hikari_novel_flutter/models/reader_settings_state.dart';
 import 'package:hikari_novel_flutter/models/resource.dart';
 import 'package:hikari_novel_flutter/network/parser.dart';
 import 'package:hikari_novel_flutter/pages/novel_detail/controller.dart';
@@ -113,11 +114,9 @@ class ReaderController extends GetxController {
 
     getInitLocation(); //事先赋值一下对应的变量，防止在build过程中修改obx变量
 
-    //延迟更新阅读记录
-    //debounce / ever / interval 只能在 Controller 生命周期里创建一次
-    //TODO 还需要优化
-    interval(currentLocation, (_) => setReadHistory(), time: const Duration(milliseconds: 500));
-    interval(currentIndex, (_) => setReadHistory(), time: const Duration(milliseconds: 500));
+    // 防抖更新阅读记录（2秒内无新操作才写入）
+    debounce(currentLocation, (_) => setReadHistory(), time: const Duration(seconds: 2));
+    debounce(currentIndex, (_) => setReadHistory(), time: const Duration(seconds: 2));
   }
 
   @override
@@ -146,6 +145,8 @@ class ReaderController extends GetxController {
   @override
   void onClose() {
     TtsService.instance.stop();
+    // 退出时强制保存阅读记录
+    setReadHistory();
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: false);
     if (readerSettingsState.value.immersionMode) SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.onClose();
@@ -585,139 +586,4 @@ List<int>? _findIndexPositionInCatalogue(Map<String, dynamic> args) {
   return null;
 }
 
-class ReaderSettingsState {
-  final ReaderDirection direction;
-  final bool pageTurningAnimation;
-  final bool wakeLock;
-  final DualPageMode dualPageMode;
-  final double dualPageSpacing;
-  final bool immersionMode;
-  final bool showStatusBar;
-  final double fontSize;
-  final double lineSpacing;
-  final double leftMargin;
-  final double topMargin;
-  final double rightMargin;
-  final double bottomMargin;
-  final double safeAreaTop;
-  final Color? textColor;
-  final Color? bgColor;
-  final String? textStyleFilePath;
-  final String? textFamily;
-  final String? bgImagePath;
-  final String? readerDayBgImage;
-  final String? readerNightBgImage;
-  final Color? readerDayTextColor;
-  final Color? readerNightTextColor;
-  final Color? readerDayBgColor;
-  final Color? readerNightBgColor;
 
-  ReaderSettingsState({
-    required this.direction,
-    required this.pageTurningAnimation,
-    required this.wakeLock,
-    required this.dualPageMode,
-    required this.dualPageSpacing,
-    required this.immersionMode,
-    required this.showStatusBar,
-    required this.fontSize,
-    required this.lineSpacing,
-    required this.leftMargin,
-    required this.topMargin,
-    required this.rightMargin,
-    required this.bottomMargin,
-    required this.safeAreaTop,
-    required this.textColor,
-    required this.bgColor,
-    required this.textStyleFilePath,
-    required this.textFamily,
-    required this.bgImagePath,
-    required this.readerDayBgImage,
-    required this.readerNightBgImage,
-    required this.readerDayTextColor,
-    required this.readerNightTextColor,
-    required this.readerDayBgColor,
-    required this.readerNightBgColor,
-  });
-
-  ReaderSettingsState copyWith({
-    ReaderDirection? direction,
-    bool? pageTurningAnimation,
-    bool? wakeLock,
-    DualPageMode? dualPageMode,
-    double? dualPageSpacing,
-    bool? immersionMode,
-    bool? showStatusBar,
-    double? fontSize,
-    double? lineSpacing,
-    double? leftMargin,
-    double? topMargin,
-    double? rightMargin,
-    double? bottomMargin,
-    double? safeAreaTop,
-    Color? textColor,
-    Color? bgColor,
-    String? textStyleFilePath,
-    String? textFamily,
-    String? bgImagePath,
-    String? readerDayBgImage,
-    String? readerNightBgImage,
-    Color? readerDayTextColor,
-    Color? readerNightTextColor,
-    Color? readerDayBgColor,
-    Color? readerNightBgColor,
-  }) => ReaderSettingsState(
-    direction: direction ?? this.direction,
-    pageTurningAnimation: pageTurningAnimation ?? this.pageTurningAnimation,
-    wakeLock: wakeLock ?? this.wakeLock,
-    dualPageMode: dualPageMode ?? this.dualPageMode,
-    dualPageSpacing: dualPageSpacing ?? this.dualPageSpacing,
-    immersionMode: immersionMode ?? this.immersionMode,
-    showStatusBar: showStatusBar ?? this.showStatusBar,
-    fontSize: fontSize ?? this.fontSize,
-    lineSpacing: lineSpacing ?? this.lineSpacing,
-    leftMargin: leftMargin ?? this.leftMargin,
-    topMargin: topMargin ?? this.topMargin,
-    rightMargin: rightMargin ?? this.rightMargin,
-    bottomMargin: bottomMargin ?? this.bottomMargin,
-    safeAreaTop: safeAreaTop ?? this.safeAreaTop,
-    textColor: textColor ?? this.textColor,
-    bgColor: bgColor ?? this.bgColor,
-    textStyleFilePath: textStyleFilePath ?? this.textStyleFilePath,
-    textFamily: textFamily ?? this.textFamily,
-    bgImagePath: bgImagePath ?? this.bgImagePath,
-    readerDayBgImage: readerDayBgImage ?? this.readerDayBgImage,
-    readerNightBgImage: readerNightBgImage ?? this.readerNightBgImage,
-    readerDayTextColor: readerDayTextColor ?? this.readerDayTextColor,
-    readerNightTextColor: readerNightTextColor ?? this.readerNightTextColor,
-    readerDayBgColor: readerDayBgColor ?? this.readerDayBgColor,
-    readerNightBgColor: readerNightBgColor ?? this.readerNightBgColor,
-  );
-
-  ReaderSettingsState.init()
-    : direction = LocalStorageService.instance.getReaderDirection(),
-      pageTurningAnimation = LocalStorageService.instance.getReaderPageTurningAnimation(),
-      wakeLock = LocalStorageService.instance.getReaderWakeLock(),
-      dualPageMode = LocalStorageService.instance.getReaderDualPageMode(),
-      dualPageSpacing = LocalStorageService.instance.getReaderDualPageSpacing(),
-      immersionMode = LocalStorageService.instance.getReaderImmersionMode(),
-      showStatusBar = LocalStorageService.instance.getReaderStatusBar(),
-      fontSize = LocalStorageService.instance.getReaderFontSize(),
-      lineSpacing = LocalStorageService.instance.getReaderLineSpacing(),
-      leftMargin = LocalStorageService.instance.getReaderLeftMargin(),
-      topMargin = LocalStorageService.instance.getReaderTopMargin(),
-      rightMargin = LocalStorageService.instance.getReaderRightMargin(),
-      bottomMargin = LocalStorageService.instance.getReaderBottomMargin(),
-      safeAreaTop = LocalStorageService.instance.getReaderSafeAreaTop() ?? 0.0,
-      textColor = LocalStorageService.instance.getReaderDayTextColor(),
-      bgColor = LocalStorageService.instance.getReaderDayBgColor(),
-      textStyleFilePath = LocalStorageService.instance.getReaderTextStyleFilePath(),
-      textFamily = LocalStorageService.instance.getReaderTextFamily(),
-      bgImagePath = LocalStorageService.instance.getReaderDayBgImage(),
-      readerDayBgImage = LocalStorageService.instance.getReaderDayBgImage(),
-      readerNightBgImage = LocalStorageService.instance.getReaderNightBgImage(),
-      readerDayTextColor = LocalStorageService.instance.getReaderDayTextColor(),
-      readerNightTextColor = LocalStorageService.instance.getReaderNightTextColor(),
-      readerDayBgColor = LocalStorageService.instance.getReaderDayBgColor(),
-      readerNightBgColor = LocalStorageService.instance.getReaderNightBgColor();
-}
