@@ -131,7 +131,15 @@ class ReaderController extends GetxController {
      2) 因为getContent()函数依赖cid，所以我把初始化cid的过程放到了onReady而不是onInit中。
      */
     final listOnlyWithCid = catalogue.map((cat) => cat.chapters.map((chap) => chap.cid).toList()).toList(); //仅提取含有cid的list
-    final targetCid = Get.parameters["cid"]!;
+    // 从 arguments 获取参数（子路由使用）
+    final args = Get.arguments as Map<String, String>?;
+    final targetCid = args?["cid"] ?? "";
+    
+    if (targetCid.isEmpty) {
+      pageState.value = PageState.error;
+      errorMsg = "无法获取章节 ID";
+      return;
+    }
     final indexPosition = (await compute(_findIndexPositionInCatalogue, {'catalogue': listOnlyWithCid, 'cid': targetCid}))!;
 
     currentVolumeIndex = indexPosition[0];
@@ -154,9 +162,13 @@ class ReaderController extends GetxController {
 
   //获取初始页面位置
   int getInitLocation() {
+    // 从 arguments 获取参数（子路由使用）
+    final args = Get.arguments as Map<String, String>?;
+    final locationStr = args?["location"] ?? "0";
+    
     if (readerSettingsState.value.direction == ReaderDirection.upToDown) {
       try {
-        int value = int.parse(Get.parameters["location"]!);
+        int value = int.parse(locationStr);
         currentLocation.value = value;
         return value;
       } catch (_) {
@@ -164,7 +176,7 @@ class ReaderController extends GetxController {
       }
     } else {
       try {
-        int value = int.parse(Get.parameters["location"]!);
+        int value = int.parse(locationStr);
         currentIndex.value = value;
         return value;
       } catch (_) {
