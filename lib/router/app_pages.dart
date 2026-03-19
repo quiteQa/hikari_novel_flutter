@@ -75,7 +75,10 @@ class AppRoutes {
       case RoutePath.devTools:
         return GetPageRoute(settings: settings, page: () => const DevToolsPage());
       case RoutePath.reader:
-        return GetPageRoute(settings: settings, page: () => ReaderPage());
+        {
+          final params = settings.arguments as Map<String, String>?;
+          return GetPageRoute(settings: settings, page: () => ReaderPage(cid: params?["cid"] ?? "", location: params?["location"] ?? "0"));
+        }
       case RoutePath.readerSetting:
         return GetPageRoute(settings: settings, page: () => ReaderSettingPage());
       default:

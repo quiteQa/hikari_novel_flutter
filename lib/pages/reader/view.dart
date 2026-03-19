@@ -18,10 +18,30 @@ import '../../models/page_state.dart';
 import '../../router/route_path.dart';
 import '../../router/app_sub_router.dart';
 
-class ReaderPage extends StatelessWidget {
-  ReaderPage({super.key});
+class ReaderPage extends StatefulWidget {
+  final String cid;
+  final String location;
 
-  final controller = Get.put(ReaderController());
+  const ReaderPage({super.key, this.cid = "", this.location = "0"});
+
+  @override
+  State<ReaderPage> createState() => _ReaderPageState();
+}
+
+class _ReaderPageState extends State<ReaderPage> {
+  late final ReaderController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(ReaderController(initialCid: widget.cid, initialLocation: widget.location));
+  }
+
+  @override
+  void dispose() {
+    Get.delete<ReaderController>();
+    super.dispose();
+  }
 
   EdgeInsets get padding => EdgeInsets.fromLTRB(
     controller.readerSettingsState.value.leftMargin,

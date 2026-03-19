@@ -29,6 +29,11 @@ import '../../service/db_service.dart';
 import '../../service/local_storage_service.dart';
 
 class ReaderController extends GetxController {
+  final String initialCid;
+  final String initialLocation;
+  
+  ReaderController({this.initialCid = "", this.initialLocation = "0"});
+
   final _novelDetailController = Get.find<NovelDetailController>();
 
   late List<CatVolume> catalogue;
@@ -133,7 +138,7 @@ class ReaderController extends GetxController {
     final listOnlyWithCid = catalogue.map((cat) => cat.chapters.map((chap) => chap.cid).toList()).toList(); //仅提取含有cid的list
     // 从 arguments 获取参数（子路由使用）
     final args = Get.arguments as Map<String, String>?;
-    final targetCid = args?["cid"] ?? "";
+    final targetCid = initialCid;
     
     if (targetCid.isEmpty) {
       pageState.value = PageState.error;
@@ -162,9 +167,7 @@ class ReaderController extends GetxController {
 
   //获取初始页面位置
   int getInitLocation() {
-    // 从 arguments 获取参数（子路由使用）
-    final args = Get.arguments as Map<String, String>?;
-    final locationStr = args?["location"] ?? "0";
+    final locationStr = initialLocation;
     
     if (readerSettingsState.value.direction == ReaderDirection.upToDown) {
       try {
