@@ -16,6 +16,7 @@ import 'package:hikari_novel_flutter/pages/reader/widgets/tts_floating_controlle
 import '../../common/constants.dart';
 import '../../models/page_state.dart';
 import '../../router/route_path.dart';
+import '../../router/app_sub_router.dart';
 
 class ReaderPage extends StatelessWidget {
   ReaderPage({super.key});
@@ -146,7 +147,7 @@ class ReaderPage extends StatelessWidget {
                             child: IconButton(onPressed: () => _showCatalogue(context), icon: const Icon(Icons.list_alt)),
                           ),
                           Expanded(
-                            child: IconButton(onPressed: () => Get.toNamed(RoutePath.readerSetting), icon: const Icon(Icons.settings_outlined)),
+                            child: IconButton(onPressed: () => Get.toNamed(RoutePath.readerSetting, id: AppSubRouter.subNavigatorId), icon: const Icon(Icons.settings_outlined)),
                           ),
                           TtsService.instance.enabled.value
                               ? Expanded(

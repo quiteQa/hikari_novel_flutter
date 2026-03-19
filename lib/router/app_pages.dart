@@ -30,9 +30,7 @@ class AppRoutes {
     CustomGetPage(name: RoutePath.login, page: () => LoginPage()),
     CustomGetPage(name: RoutePath.tokenLogin, page: () => TokenLoginPage()),
     CustomGetPage(name: RoutePath.photo, page: () => PhotoPage()),
-    CustomGetPage(name: RoutePath.reader, page: () => ReaderPage()),
     CustomGetPage(name: RoutePath.welcome, page: () => WelcomePage()),
-    CustomGetPage(name: RoutePath.readerSetting, page: () => ReaderSettingPage()),
   ];
 
   static Route<dynamic>? subRoutePages(RouteSettings settings) {
@@ -76,6 +74,10 @@ class AppRoutes {
         return GetPageRoute(settings: settings, page: () => CacheQueuePage());
       case RoutePath.devTools:
         return GetPageRoute(settings: settings, page: () => const DevToolsPage());
+      case RoutePath.reader:
+        return GetPageRoute(settings: settings, page: () => ReaderPage());
+      case RoutePath.readerSetting:
+        return GetPageRoute(settings: settings, page: () => ReaderSettingPage());
       default:
         return null;
     }

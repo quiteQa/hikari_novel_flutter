@@ -436,7 +436,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                                     (currDirection == ReaderDirection.leftToRight || currDirection == ReaderDirection.rightToLeft))) {
                               location = history?.location ?? 0;
                             }
-                            Get.toNamed(RoutePath.reader, parameters: {"cid": chapter.cid, "location": "$location"});
+                            AppSubRouter.toReader(cid: chapter.cid, location: "$location");
                           },
                           onLongPress: () {
                             if (!controller.isSelectionMode.value) controller.enterSelectionMode();
@@ -473,7 +473,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
               child: FloatingActionButton.extended(
                 onPressed: () {
                   if (history == null) return;
-                  Get.toNamed(RoutePath.reader, parameters: {"cid": history.cid, "location": "${history.location}"});
+                  AppSubRouter.toReader(cid: history.cid, location: "${history.location}");
                 },
                 label: Row(children: [const Icon(Icons.play_arrow), const SizedBox(width: 10), Text("continue_reading".tr)]),
               ),
