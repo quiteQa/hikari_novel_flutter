@@ -27,6 +27,7 @@ import '../../models/page_state.dart';
 import '../../network/api.dart';
 import '../../service/db_service.dart';
 import '../../service/local_storage_service.dart';
+import 'widgets/paper_curl_pager.dart';
 
 class ReaderController extends GetxController {
   final String initialCid;
@@ -48,7 +49,7 @@ class ReaderController extends GetxController {
   int get currentVolumeTotal => catalogue.length;
 
   final pageController = PageController();
-  final scrollController = ScrollController();
+  final paperCurlController = PaperCurlPagerController();
 
   final _battery = Battery();
   RxInt batteryLevel = 0.obs;
@@ -61,7 +62,7 @@ class ReaderController extends GetxController {
   RxBool showBar = false.obs;
 
   bool get isDualPage => switch (readerSettingsState.value.dualPageMode) {
-    DualPageMode.auto => Get.context!.isLargeScreen(),
+    DualPageMode.auto => Get.context!.shouldAutoUseDualPage(),
     DualPageMode.enabled => true,
     DualPageMode.disabled => false,
   };
@@ -70,6 +71,7 @@ class ReaderController extends GetxController {
 
   ///当前页面，横向用
   RxInt currentIndex = 0.obs;
+  int initialHorizontalIndex = 0;
 
   RxInt horizontalProgress = 0.obs;
 
@@ -78,6 +80,7 @@ class ReaderController extends GetxController {
 
   ///阅读位置，竖向用
   RxInt currentLocation = 0.obs;
+  int initialVerticalOffset = 0;
 
   ///竖向模式下，显示当前阅读进度的百分比
   RxInt verticalProgress = 0.obs;
@@ -119,16 +122,18 @@ class ReaderController extends GetxController {
 
     getInitLocation(); //事先赋值一下对应的变量，防止在build过程中修改obx变量
 
-    // 防抖更新阅读记录（2秒内无新操作才写入）
-    debounce(currentLocation, (_) => setReadHistory(), time: const Duration(seconds: 2));
-    debounce(currentIndex, (_) => setReadHistory(), time: const Duration(seconds: 2));
+//延迟更新阅读记录
+    //debounce / ever / interval 只能在 Controller 生命周期里创建一次
+    //TODO 还需要优化
+    debounce(currentLocation, (_) => setReadHistory(), time: const Duration(milliseconds: 150));
+    debounce(currentIndex, (_) => setReadHistory(), time: const Duration(milliseconds: 150));
   }
 
   @override
   void onReady() async {
     super.onReady();
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: true);
-    if (readerSettingsState.value.immersionMode) SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    _applyReaderSystemUi(readerSettingsState.value.immersionMode);
 
     /*
      1) 至于这里的cid为什么不直接使用上面的<get cid>，是因为上面的<get cid>依赖currentVolumeIndex和currentChapterIndex。
@@ -161,7 +166,7 @@ class ReaderController extends GetxController {
     // 退出时强制保存阅读记录
     setReadHistory();
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: false);
-    if (readerSettingsState.value.immersionMode) SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    _applyReaderSystemUi(false);
     super.onClose();
   }
 
@@ -173,16 +178,20 @@ class ReaderController extends GetxController {
       try {
         int value = int.parse(locationStr);
         currentLocation.value = value;
+        initialVerticalOffset = value;
         return value;
       } catch (_) {
+        initialVerticalOffset = 0;
         return 0;
       }
     } else {
       try {
         int value = int.parse(locationStr);
         currentIndex.value = value;
+        initialHorizontalIndex = value;
         return value;
       } catch (_) {
+        initialHorizontalIndex = 0;
         return 0;
       }
     }
@@ -256,6 +265,10 @@ class ReaderController extends GetxController {
 
   /// 跳转页数
   void jumpToPage(int page) {
+    if (readerSettingsState.value.direction != ReaderDirection.upToDown && readerSettingsState.value.pageTurningAnimation) {
+      paperCurlController.jumpToPage(page);
+      return;
+    }
     readerSettingsState.value.pageTurningAnimation
         ? pageController.animateToPage(page, duration: const Duration(milliseconds: 200), curve: Curves.linear)
         : pageController.jumpToPage(page);
@@ -384,12 +397,27 @@ class ReaderController extends GetxController {
 
   void changeImmersionMode(bool enabled) {
     readerSettingsState.value = readerSettingsState.value.copyWith(immersionMode: enabled);
-    if (enabled) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
+    _applyReaderSystemUi(enabled);
     LocalStorageService.instance.setReaderImmersionMode(enabled);
+  }
+
+  void _applyReaderSystemUi(bool immersive) {
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+
+    if (immersive) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      return;
+    }
+
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
+      ),
+    );
   }
 
   void changeShowStatusBar(bool enabled) {
@@ -435,6 +463,21 @@ class ReaderController extends GetxController {
   void changeReaderNightBgImage(String? path) {
     currentBgImagePath.value = path;
     LocalStorageService.instance.setReaderNightBgImage(path);
+  }
+
+  void changeReaderParaIndent(int value) {
+    readerSettingsState.value = readerSettingsState.value.copyWith(readerParaIndent: value);
+    LocalStorageService.instance.setReaderParaIndent(value);
+  }
+
+  void changeReaderParaSpacing(int value) {
+    readerSettingsState.value = readerSettingsState.value.copyWith(readerParaSpacing: value);
+    LocalStorageService.instance.setReaderParaSpacing(value);
+  }
+
+  void changeReaderBottomStatusBarHorizontalSpacing(int value) {
+    readerSettingsState.value = readerSettingsState.value.copyWith(readerBottomStatusBarHorizontalSpacing: value);
+    LocalStorageService.instance.setReaderBottomStatusBarHorizontalSpacing(value);
   }
 
   void getTextColor() {
@@ -601,4 +644,149 @@ List<int>? _findIndexPositionInCatalogue(Map<String, dynamic> args) {
   return null;
 }
 
+class ReaderSettingsState {
+  final ReaderDirection direction;
+  final bool pageTurningAnimation;
+  final bool wakeLock;
+  final DualPageMode dualPageMode;
+  final double dualPageSpacing;
+  final bool immersionMode;
+  final bool showStatusBar;
+  final double fontSize;
+  final double lineSpacing;
+  final double leftMargin;
+  final double topMargin;
+  final double rightMargin;
+  final double bottomMargin;
+  final Color? textColor;
+  final Color? bgColor;
+  final String? textStyleFilePath;
+  final String? textFamily;
+  final String? bgImagePath;
+  final String? readerDayBgImage;
+  final String? readerNightBgImage;
+  final Color? readerDayTextColor;
+  final Color? readerNightTextColor;
+  final Color? readerDayBgColor;
+  final Color? readerNightBgColor;
+  final int readerParaIndent;
+  final int readerParaSpacing;
+  final int readerBottomStatusBarHorizontalSpacing;
 
+  ReaderSettingsState({
+    required this.direction,
+    required this.pageTurningAnimation,
+    required this.wakeLock,
+    required this.dualPageMode,
+    required this.dualPageSpacing,
+    required this.immersionMode,
+    required this.showStatusBar,
+    required this.fontSize,
+    required this.lineSpacing,
+    required this.leftMargin,
+    required this.topMargin,
+    required this.rightMargin,
+    required this.bottomMargin,
+    required this.textColor,
+    required this.bgColor,
+    required this.textStyleFilePath,
+    required this.textFamily,
+    required this.bgImagePath,
+    required this.readerDayBgImage,
+    required this.readerNightBgImage,
+    required this.readerDayTextColor,
+    required this.readerNightTextColor,
+    required this.readerDayBgColor,
+    required this.readerNightBgColor,
+    required this.readerParaIndent,
+    required this.readerParaSpacing,
+    required this.readerBottomStatusBarHorizontalSpacing,
+  });
+
+  ReaderSettingsState copyWith({
+    ReaderDirection? direction,
+    bool? pageTurningAnimation,
+    bool? wakeLock,
+    DualPageMode? dualPageMode,
+    double? dualPageSpacing,
+    bool? immersionMode,
+    bool? showStatusBar,
+    double? fontSize,
+    double? lineSpacing,
+    double? leftMargin,
+    double? topMargin,
+    double? rightMargin,
+    double? bottomMargin,
+    Color? textColor,
+    Color? bgColor,
+    String? textStyleFilePath,
+    String? textFamily,
+    String? bgImagePath,
+    String? readerDayBgImage,
+    String? readerNightBgImage,
+    Color? readerDayTextColor,
+    Color? readerNightTextColor,
+    Color? readerDayBgColor,
+    Color? readerNightBgColor,
+    int? readerParaIndent,
+    int? readerParaSpacing,
+    int? readerBottomStatusBarHorizontalSpacing
+  }) => ReaderSettingsState(
+    direction: direction ?? this.direction,
+    pageTurningAnimation: pageTurningAnimation ?? this.pageTurningAnimation,
+    wakeLock: wakeLock ?? this.wakeLock,
+    dualPageMode: dualPageMode ?? this.dualPageMode,
+    dualPageSpacing: dualPageSpacing ?? this.dualPageSpacing,
+    immersionMode: immersionMode ?? this.immersionMode,
+    showStatusBar: showStatusBar ?? this.showStatusBar,
+    fontSize: fontSize ?? this.fontSize,
+    lineSpacing: lineSpacing ?? this.lineSpacing,
+    leftMargin: leftMargin ?? this.leftMargin,
+    topMargin: topMargin ?? this.topMargin,
+    rightMargin: rightMargin ?? this.rightMargin,
+    bottomMargin: bottomMargin ?? this.bottomMargin,
+    textColor: textColor ?? this.textColor,
+    bgColor: bgColor ?? this.bgColor,
+    textStyleFilePath: textStyleFilePath ?? this.textStyleFilePath,
+    textFamily: textFamily ?? this.textFamily,
+    bgImagePath: bgImagePath ?? this.bgImagePath,
+    readerDayBgImage: readerDayBgImage ?? this.readerDayBgImage,
+    readerNightBgImage: readerNightBgImage ?? this.readerNightBgImage,
+    readerDayTextColor: readerDayTextColor ?? this.readerDayTextColor,
+    readerNightTextColor: readerNightTextColor ?? this.readerNightTextColor,
+    readerDayBgColor: readerDayBgColor ?? this.readerDayBgColor,
+    readerNightBgColor: readerNightBgColor ?? this.readerNightBgColor,
+    readerParaIndent: readerParaIndent ?? this.readerParaIndent,
+    readerParaSpacing: readerParaSpacing ?? this.readerParaSpacing,
+    readerBottomStatusBarHorizontalSpacing: readerBottomStatusBarHorizontalSpacing ?? this.readerBottomStatusBarHorizontalSpacing
+  );
+
+  ReaderSettingsState.init()
+    : direction = LocalStorageService.instance.getReaderDirection(),
+      pageTurningAnimation = LocalStorageService.instance.getReaderPageTurningAnimation(),
+      wakeLock = LocalStorageService.instance.getReaderWakeLock(),
+      dualPageMode = LocalStorageService.instance.getReaderDualPageMode(),
+      dualPageSpacing = LocalStorageService.instance.getReaderDualPageSpacing(),
+      immersionMode = LocalStorageService.instance.getReaderImmersionMode(),
+      showStatusBar = LocalStorageService.instance.getReaderStatusBar(),
+      fontSize = LocalStorageService.instance.getReaderFontSize(),
+      lineSpacing = LocalStorageService.instance.getReaderLineSpacing(),
+      leftMargin = LocalStorageService.instance.getReaderLeftMargin(),
+      topMargin = LocalStorageService.instance.getReaderTopMargin(),
+      rightMargin = LocalStorageService.instance.getReaderRightMargin(),
+      bottomMargin = LocalStorageService.instance.getReaderBottomMargin(),
+      textColor = LocalStorageService.instance.getReaderDayTextColor(),
+      bgColor = LocalStorageService.instance.getReaderDayBgColor(),
+      textStyleFilePath = LocalStorageService.instance.getReaderTextStyleFilePath(),
+      textFamily = LocalStorageService.instance.getReaderTextFamily(),
+      bgImagePath = LocalStorageService.instance.getReaderDayBgImage(),
+      readerDayBgImage = LocalStorageService.instance.getReaderDayBgImage(),
+      readerNightBgImage = LocalStorageService.instance.getReaderNightBgImage(),
+      readerDayTextColor = LocalStorageService.instance.getReaderDayTextColor(),
+      readerNightTextColor = LocalStorageService.instance.getReaderNightTextColor(),
+      readerDayBgColor = LocalStorageService.instance.getReaderDayBgColor(),
+      readerNightBgColor = LocalStorageService.instance.getReaderNightBgColor(),
+      readerParaIndent = LocalStorageService.instance.getReaderParaIndent(),
+      readerParaSpacing = LocalStorageService.instance.getReaderParaSpacing(),
+      readerBottomStatusBarHorizontalSpacing = LocalStorageService.instance.getReaderBottomStatusBarHorizontalSpacing();
+}
