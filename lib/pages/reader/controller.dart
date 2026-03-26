@@ -672,6 +672,7 @@ class ReaderSettingsState {
   final int readerParaIndent;
   final int readerParaSpacing;
   final int readerBottomStatusBarHorizontalSpacing;
+  final double safeAreaTop;
 
   ReaderSettingsState({
     required this.direction,
@@ -701,6 +702,7 @@ class ReaderSettingsState {
     required this.readerParaIndent,
     required this.readerParaSpacing,
     required this.readerBottomStatusBarHorizontalSpacing,
+    required this.safeAreaTop,
   });
 
   ReaderSettingsState copyWith({
@@ -730,7 +732,8 @@ class ReaderSettingsState {
     Color? readerNightBgColor,
     int? readerParaIndent,
     int? readerParaSpacing,
-    int? readerBottomStatusBarHorizontalSpacing
+    int? readerBottomStatusBarHorizontalSpacing,
+    double? safeAreaTop,
   }) => ReaderSettingsState(
     direction: direction ?? this.direction,
     pageTurningAnimation: pageTurningAnimation ?? this.pageTurningAnimation,
@@ -758,7 +761,8 @@ class ReaderSettingsState {
     readerNightBgColor: readerNightBgColor ?? this.readerNightBgColor,
     readerParaIndent: readerParaIndent ?? this.readerParaIndent,
     readerParaSpacing: readerParaSpacing ?? this.readerParaSpacing,
-    readerBottomStatusBarHorizontalSpacing: readerBottomStatusBarHorizontalSpacing ?? this.readerBottomStatusBarHorizontalSpacing
+    readerBottomStatusBarHorizontalSpacing: readerBottomStatusBarHorizontalSpacing ?? this.readerBottomStatusBarHorizontalSpacing,
+    safeAreaTop: safeAreaTop ?? this.safeAreaTop
   );
 
   ReaderSettingsState.init()
@@ -788,5 +792,6 @@ class ReaderSettingsState {
       readerNightBgColor = LocalStorageService.instance.getReaderNightBgColor(),
       readerParaIndent = LocalStorageService.instance.getReaderParaIndent(),
       readerParaSpacing = LocalStorageService.instance.getReaderParaSpacing(),
-      readerBottomStatusBarHorizontalSpacing = LocalStorageService.instance.getReaderBottomStatusBarHorizontalSpacing();
+      readerBottomStatusBarHorizontalSpacing = LocalStorageService.instance.getReaderBottomStatusBarHorizontalSpacing(),
+      safeAreaTop = LocalStorageService.instance.getReaderSafeAreaTop() ?? 0.0;
 }
