@@ -311,6 +311,8 @@ class AppTranslations extends Translations {
       "para_indent": "首行缩进",
       "para_spacing": "段距",
       "bottomStatusBarHorizontalSpacing": "底部状态栏文字边距",
+      "predictive_back_gesture": "预测性返回手势",
+      "predictive_back_gesture_desc": "启用 Android 14+ 的预测性返回动画，提供更流畅的返回体验",
     },
 
     "zh_TW": {
@@ -612,6 +614,8 @@ class AppTranslations extends Translations {
       "para_indent": "首行縮進",
       "para_spacing": "段距",
       "bottomStatusBarHorizontalSpacing": "底部狀態欄文字邊距",
+      "predictive_back_gesture": "預測性返回手勢",
+      "predictive_back_gesture_desc": "啟用 Android 14+ 的預測性返回動畫，提供更流暢的返回體驗",
     }
   };
 }

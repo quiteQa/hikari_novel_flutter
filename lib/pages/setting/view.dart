@@ -125,6 +125,18 @@ class SettingPage extends StatelessWidget {
               value: controller.isAutoCheckUpdate.value,
             ),
           ),
+          Offstage(
+            offstage: !Platform.isAndroid,
+            child: Obx(
+              () => SwitchTile(
+                title: "predictive_back_gesture".tr,
+                subtitle: "predictive_back_gesture_desc".tr,
+                leading: const Icon(Icons.gesture),
+                onChanged: (v) => controller.changePredictiveBackGesture(v),
+                value: controller.predictiveBackGesture.value,
+              ),
+            ),
+          ),
         ],
       ),
     );

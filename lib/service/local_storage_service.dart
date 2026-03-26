@@ -62,7 +62,8 @@ class LocalStorageService extends GetxService {
       kReaderTtsVolume = "readerTtsVolume",
       kReaderParaIndent = "readerParaIndent",
       kReaderParaSpacing = "readerParaSpacing",
-      kReaderBottomStatusBarHorizontalSpacing = "kReaderBottomStatusBarHorizontalSpacing";
+      kReaderBottomStatusBarHorizontalSpacing = "kReaderBottomStatusBarHorizontalSpacing",
+      kPredictiveBackGesture = "predictiveBackGesture";
 
   Future<void> init() async {
     final Directory dir = await getApplicationSupportDirectory();
@@ -259,4 +260,8 @@ class LocalStorageService extends GetxService {
   int getReaderBottomStatusBarHorizontalSpacing() => _reader.get(kReaderBottomStatusBarHorizontalSpacing, defaultValue: 25);
 
   void setReaderBottomStatusBarHorizontalSpacing(int value) => _reader.put(kReaderParaSpacing, value);
+
+  bool getPredictiveBackGesture() => _setting.get(kPredictiveBackGesture, defaultValue: true);
+
+  void setPredictiveBackGesture(bool value) => _setting.put(kPredictiveBackGesture, value);
 }

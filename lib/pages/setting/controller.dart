@@ -15,6 +15,7 @@ class SettingController extends GetxController {
   Rx<ThemeMode> themeMode = Rx(LocalStorageService.instance.getThemeMode());
   RxBool isDynamicColor = LocalStorageService.instance.getIsDynamicColor().obs;
   Rx<Color> customColor = Rx(LocalStorageService.instance.getCustomColor());
+  RxBool predictiveBackGesture = LocalStorageService.instance.getPredictiveBackGesture().obs;
 
   void changeIsAutoCheckUpdate(bool enabled) {
     isAutoCheckUpdate.value = enabled;
@@ -63,5 +64,10 @@ class SettingController extends GetxController {
     themeMode.value = mode;
     LocalStorageService.instance.setThemeMode(mode);
     Get.forceAppUpdate();
+  }
+
+  void changePredictiveBackGesture(bool enabled) {
+    predictiveBackGesture.value = enabled;
+    LocalStorageService.instance.setPredictiveBackGesture(enabled);
   }
 }

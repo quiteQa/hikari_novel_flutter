@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/common/extension.dart';
 import 'package:hikari_novel_flutter/pages/main/controller.dart';
 import 'package:hikari_novel_flutter/pages/novel_detail/controller.dart';
+import 'package:hikari_novel_flutter/service/local_storage_service.dart';
 
 import '../../common/log.dart';
 import '../../common/common_widgets.dart';
@@ -82,29 +83,43 @@ class MainPage extends StatelessWidget {
 
 //子路由
 Widget _buildContentNavigator(MainController controller) {
-  return PopScope(
-    canPop: false,
-    onPopInvokedWithResult: (didPop, _) {
-      if (!didPop) {
-        //单独处理内层返回事件
-        try {
-          NovelDetailController novelDetailController = Get.find();
-          if (novelDetailController.isSelectionMode.value) {
-            novelDetailController.exitSelectionMode();
-            return;
-          }
-        } catch (_, _) {
-          Log.i("novelDetailController is null");
-        }
+  final predictiveBackEnabled = LocalStorageService.instance.getPredictiveBackGesture();
 
-        //下面是通用处理方式
-        if (Navigator.canPop(Get.context!)) {
-          Get.back();
-          return;
-        } else if (AppSubRouter.subNavigatorKey!.currentState!.canPop()) {
-          AppSubRouter.subNavigatorKey!.currentState!.pop();
+  bool canPopHandler() {
+    // 如果禁用预测性返回，始终返回 false（手动处理）
+    if (!predictiveBackEnabled) return false;
+
+    // 启用预测性返回时，根据导航状态决定
+    // 如果有可以返回的页面，让系统处理返回动画
+    if (Navigator.canPop(Get.context!)) return true;
+    if (AppSubRouter.subNavigatorKey!.currentState?.canPop() ?? false) return true;
+    return false;
+  }
+
+  return PopScope(
+    canPop: canPopHandler(),
+    onPopInvokedWithResult: (didPop, _) {
+      // 如果预测性返回启用且已经 pop 了，不需要额外处理
+      if (predictiveBackEnabled && didPop) return;
+
+      // 单独处理内层返回事件
+      try {
+        NovelDetailController novelDetailController = Get.find();
+        if (novelDetailController.isSelectionMode.value) {
+          novelDetailController.exitSelectionMode();
           return;
         }
+      } catch (_, _) {
+        Log.i("novelDetailController is null");
+      }
+
+      // 下面是通用处理方式
+      if (Navigator.canPop(Get.context!)) {
+        Get.back();
+        return;
+      } else if (AppSubRouter.subNavigatorKey!.currentState?.canPop() ?? false) {
+        AppSubRouter.subNavigatorKey!.currentState!.pop();
+        return;
       }
     },
     child: ClipRect(
