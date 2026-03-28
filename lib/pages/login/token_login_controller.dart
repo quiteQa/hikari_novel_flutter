@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/models/resource.dart';
 
 import '../../common/database/database.dart';
-import '../../common/database/entity.dart';
 import '../../common/log.dart';
 import '../../network/api.dart';
 import '../../network/parser.dart';

@@ -360,7 +360,7 @@ class _PaperCurlPagerState extends State<PaperCurlPager> with SingleTickerProvid
                     _paper,
                     backside,
                     fromTop: _fromTop,
-                    gutterColor: Theme.of(context).colorScheme.shadow.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.42 : 0.18),
+                    gutterColor: Theme.of(context).colorScheme.shadow.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.42 : 0.18),
                   ),
                 ),
               ),

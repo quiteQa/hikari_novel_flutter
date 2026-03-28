@@ -10,7 +10,6 @@ import 'package:hikari_novel_flutter/common/constants.dart';
 import 'package:hikari_novel_flutter/common/extension.dart';
 import 'package:hikari_novel_flutter/models/dual_page_mode.dart';
 import 'package:hikari_novel_flutter/models/reader_direction.dart';
-import 'package:hikari_novel_flutter/models/reader_settings_state.dart';
 import 'package:hikari_novel_flutter/models/resource.dart';
 import 'package:hikari_novel_flutter/network/parser.dart';
 import 'package:hikari_novel_flutter/pages/novel_detail/controller.dart';
@@ -122,11 +121,11 @@ class ReaderController extends GetxController {
 
     getInitLocation(); //事先赋值一下对应的变量，防止在build过程中修改obx变量
 
-//延迟更新阅读记录
-    //debounce / ever / interval 只能在 Controller 生命周期里创建一次
-    //TODO 还需要优化
-    debounce(currentLocation, (_) => setReadHistory(), time: const Duration(milliseconds: 150));
-    debounce(currentIndex, (_) => setReadHistory(), time: const Duration(milliseconds: 150));
+//延迟更新阅读记录 — 统一 debounce，避免两个变量同时触发导致重复写入
+    final saveTrigger = 0.obs;
+    debounce(saveTrigger, (_) => setReadHistory(), time: const Duration(milliseconds: 200));
+    ever(currentLocation, (_) => saveTrigger.value++);
+    ever(currentIndex, (_) => saveTrigger.value++);
   }
 
   @override
@@ -142,7 +141,7 @@ class ReaderController extends GetxController {
      */
     final listOnlyWithCid = catalogue.map((cat) => cat.chapters.map((chap) => chap.cid).toList()).toList(); //仅提取含有cid的list
     // 从 arguments 获取参数（子路由使用）
-    final args = Get.arguments as Map<String, String>?;
+    final _ = Get.arguments as Map<String, String>?;
     final targetCid = initialCid;
     
     if (targetCid.isEmpty) {

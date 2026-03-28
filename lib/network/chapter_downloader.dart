@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:enough_convert/enough_convert.dart';
 import 'package:hikari_novel_flutter/network/api.dart';
 import 'package:hikari_novel_flutter/network/request.dart';
+import 'package:hikari_novel_flutter/network/retry_helper.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../common/log.dart';
@@ -101,16 +102,18 @@ class ChapterDownloader {
 
       Log.d("$url ${Api.charsetsType.name}");
 
-      // 发起网络请求获取章节内容
-      final Response response = await _dio.get(
-        url,
-        cancelToken: cancelToken,
-        onReceiveProgress: (received, total) {
-          // 进度回调
-          if (onProgress != null && total > 0) {
-            onProgress(received, total);
-          }
-        }
+      // 发起网络请求获取章节内容（带重试）
+      final Response response = await RetryHelper.retry(
+        () => _dio.get(
+          url,
+          cancelToken: cancelToken,
+          onReceiveProgress: (received, total) {
+            if (onProgress != null && total > 0) {
+              onProgress(received, total);
+            }
+          },
+        ),
+        maxRetries: 2,
       );
 
       // 检查是否在请求过程中被取消
