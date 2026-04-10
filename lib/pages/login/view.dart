@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/main.dart';
-import 'package:hikari_novel_flutter/models/common/wenku8_node.dart';
 import 'package:hikari_novel_flutter/models/page_state.dart';
 import 'package:hikari_novel_flutter/widgets/state_page.dart';
 
@@ -24,24 +23,6 @@ class LoginPage extends StatelessWidget {
           title: Obx(() => Text(controller.currentUrl.value)),
           actions: controller.pageState.value == PageState.success
               ? [
-                  Obx(
-                    () => IconButton(
-                      onPressed: () =>
-                          Get.dialog(
-                            RadioListDialog(
-                              value: controller.wenku8Node.value,
-                              values: [(Wenku8Node.wwwWenku8Net, Wenku8Node.wwwWenku8Net.node), (Wenku8Node.wwwWenku8Cc, Wenku8Node.wwwWenku8Cc.node)],
-                              title: "node".tr,
-                            ),
-                          ).then((value) async {
-                            if (value != null) {
-                              await controller.changeWenku8Node(value);
-                            }
-                          }),
-                      icon: const Icon(Icons.lan_outlined),
-                      tooltip: "node".tr,
-                    ),
-                  ),
                   IconButton(
                     onPressed: () async {
                       if (await controller.inAppWebViewController?.canGoBack() == true) {
