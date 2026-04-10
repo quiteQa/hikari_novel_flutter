@@ -30,16 +30,30 @@ class LoginController extends GetxController {
     javaScriptEnabled: true,
   );
   RxString currentUrl = "".obs;
+  Rx<Wenku8Node> wenku8Node = LocalStorageService.instance.getWenku8Node().obs;
 
   Rx<PageState> pageState = PageState.success.obs;
   String errorMsg = "";
 
-  String get url => "${Api.wenku8Node.node}/login.php";
+  String get url => "${wenku8Node.value.node}/login.php";
 
   @override
   void onInit() {
     super.onInit();
+    currentUrl.value = url;
     cookieManager.deleteAllCookies();
+  }
+
+  Future<void> changeWenku8Node(Wenku8Node node) async {
+    if (wenku8Node.value == node) return;
+
+    wenku8Node.value = node;
+    LocalStorageService.instance.setWenku8Node(node);
+    currentUrl.value = url;
+    showLoading.value = true;
+    loadingProgress.value = 0;
+    await cookieManager.deleteAllCookies();
+    await inAppWebViewController?.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
   }
 
   Future<void> saveCookie(WebUri uri) async {
