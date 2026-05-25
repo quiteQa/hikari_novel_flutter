@@ -1,7 +1,6 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hikari_novel_flutter/common/log.dart';
 import 'package:hikari_novel_flutter/models/reader_direction.dart';
 import 'package:hikari_novel_flutter/pages/reader/controller.dart';
 import 'package:hikari_novel_flutter/pages/reader/widgets/custom_header.dart';
@@ -16,12 +15,16 @@ import 'package:hikari_novel_flutter/pages/reader/widgets/tts_floating_controlle
 
 import '../../common/constants.dart';
 import '../../models/page_state.dart';
+import '../../router/app_sub_router.dart';
 import '../../router/route_path.dart';
 
 class ReaderPage extends StatelessWidget {
-  ReaderPage({super.key});
+  final String cid;
+  final String location;
 
-  final controller = Get.put(ReaderController());
+  ReaderPage({super.key, required this.cid, required this.location});
+
+  late final controller = Get.put(ReaderController(cid: cid, location: location));
 
   final GlobalKey<VerticalReadPageState> _verticalReadPageKey = GlobalKey();
 
@@ -127,7 +130,7 @@ class ReaderPage extends StatelessWidget {
                             child: IconButton(onPressed: () => _showCatalogue(context), icon: const Icon(Icons.list_alt)),
                           ),
                           Expanded(
-                            child: IconButton(onPressed: () => Get.toNamed(RoutePath.readerSetting), icon: const Icon(Icons.settings_outlined)),
+                            child: IconButton(onPressed: () => AppSubRouter.toReaderSetting(), icon: const Icon(Icons.settings_outlined)),
                           ),
                           TtsService.instance.enabled.value
                               ? Expanded(

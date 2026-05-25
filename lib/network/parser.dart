@@ -106,7 +106,10 @@ class Parser {
     bool isOffShelves = false;
     final Document document = parse(html);
     final Element? t1 = document.getElementById('content');
-    final Element t2 = t1!.getElementsByTagName('table')[0];
+    if (t1 == null) throw StateError('Element with id "content" not found');
+    final tables = t1.getElementsByTagName('table');
+    if (tables.isEmpty) throw StateError('No tables found inside "content"');
+    final Element t2 = tables[0];
     final String title = t2.querySelector('span > b')?.text.trim() ?? '';
     final trs = t2.getElementsByTagName('tr');
     final tds = trs[2].getElementsByTagName('td');
@@ -432,11 +435,15 @@ class Parser {
 
   static UserInfo getUserInfo(String html) {
     Document document = parse(html);
-    Element content = document.getElementById('content')!;
-    Element tbody = content.querySelector('tbody')!;
+    Element? content = document.getElementById('content');
+    if (content == null) throw StateError('Element with id "content" not found');
+    Element? tbody = content.querySelector('tbody');
+    if (tbody == null) throw StateError('tbody not found in content');
     List<Element> rows = tbody.querySelectorAll('tr');
+    if (rows.isEmpty) throw StateError('No rows found in tbody');
     Element row0 = rows[0];
-    String avatar = row0.querySelectorAll('td')[2].querySelector('img')!.attributes['src']!.replaceAll("https", "http");
+    Element? imgEl = row0.querySelectorAll('td')[2].querySelector('img');
+    String avatar = imgEl?.attributes['src']?.replaceAll("https", "http") ?? '';
     String userID = row0.querySelectorAll('td')[1].text.trim();
     String userName = rows[2].querySelectorAll('td')[1].text.trim();
     String userLevel = rows[4].querySelectorAll('td')[1].text.trim();
@@ -509,7 +516,8 @@ class Parser {
   static Content getContent(String html) {
     // 解析HTML并提取核心内容
     Document document = parse(html);
-    Element contentElement = document.getElementById('content')!;
+    Element? contentElement = document.getElementById('content');
+    if (contentElement == null) return Content(text: '', images: []);
 
     // 提取所有img标签的src属性到List
     List<String> imgSrcList = [];

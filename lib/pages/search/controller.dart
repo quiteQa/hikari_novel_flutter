@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +19,7 @@ class SearchController extends GetxController {
   final String? author;
 
   final keywordController = TextEditingController();
+  StreamSubscription? _searchHistorySub;
 
   RxInt searchMode = 0.obs;
   RxList<String> searchHistory = RxList();
@@ -33,9 +36,15 @@ class SearchController extends GetxController {
   void onReady() {
     super.onReady();
 
-    DBService.instance.getAllSearchHistory().listen((sh) => searchHistory.assignAll(sh.reversed.map((e) => e.keyword)));
-
+    _searchHistorySub = DBService.instance.getAllSearchHistory().listen((sh) => searchHistory.assignAll(sh.reversed.map((e) => e.keyword)));
     checkIsAuthorSearch(author);
+  }
+
+  @override
+  void onClose() {
+    _searchHistorySub?.cancel();
+    keywordController.dispose();
+    super.onClose();
   }
 
   void checkIsAuthorSearch(String? author) {

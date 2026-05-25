@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -29,6 +30,11 @@ import '../../service/local_storage_service.dart';
 import 'widgets/paper_curl_pager.dart';
 
 class ReaderController extends GetxController {
+  final String initialCid;
+  final String initialLocation;
+
+  ReaderController({required String cid, required String location}) : initialCid = cid, initialLocation = location;
+
   final _novelDetailController = Get.find<NovelDetailController>();
 
   late List<CatVolume> catalogue;
@@ -46,6 +52,7 @@ class ReaderController extends GetxController {
   final paperCurlController = PaperCurlPagerController();
 
   final _battery = Battery();
+  StreamSubscription? _batterySub;
   RxInt batteryLevel = 0.obs;
 
   Rx<PageState> pageState = Rx(PageState.loading);
@@ -55,11 +62,7 @@ class ReaderController extends GetxController {
   ///阅读界面显示操作栏
   RxBool showBar = false.obs;
 
-  bool get isDualPage => switch (readerSettingsState.value.dualPageMode) {
-    DualPageMode.auto => Get.context!.shouldAutoUseDualPage(),
-    DualPageMode.enabled => true,
-    DualPageMode.disabled => false,
-  };
+  bool get isDualPage => readerSettingsState.value.dualPageMode.isEffective(Get.context!);
 
   RxString chapterTitle = "".obs;
 
@@ -104,7 +107,7 @@ class ReaderController extends GetxController {
     catalogue = _novelDetailController.novelDetail.value!.catalogue;
 
     _battery.batteryLevel.then((l) => batteryLevel.value = l);
-    _battery.onBatteryStateChanged.listen((l) async {
+    _batterySub = _battery.onBatteryStateChanged.listen((l) async {
       batteryLevel.value = await _battery.batteryLevel;
     });
 
@@ -134,9 +137,8 @@ class ReaderController extends GetxController {
         而我们想要currentVolumeIndex和currentChapterIndex的时候，需要根据cid，在catalogue中获取其对应的VolumeIndex和ChapterIndex。
      2) 因为getContent()函数依赖cid，所以我把初始化cid的过程放到了onReady而不是onInit中。
      */
-    final listOnlyWithCid = catalogue.map((cat) => cat.chapters.map((chap) => chap.cid).toList()).toList(); //仅提取含有cid的list
-    final targetCid = Get.parameters["cid"]!;
-    final indexPosition = (await compute(_findIndexPositionInCatalogue, {'catalogue': listOnlyWithCid, 'cid': targetCid}))!;
+    final listOnlyWithCid = catalogue.map((cat) => cat.chapters.map((chap) => chap.cid).toList()).toList();
+    final indexPosition = (await compute(_findIndexPositionInCatalogue, {'catalogue': listOnlyWithCid, 'cid': initialCid}))!;
 
     currentVolumeIndex = indexPosition[0];
     currentChapterIndex = indexPosition[1];
@@ -148,17 +150,17 @@ class ReaderController extends GetxController {
 
   @override
   void onClose() {
+    _batterySub?.cancel();
     TtsService.instance.stop();
     if (readerSettingsState.value.wakeLock) WakelockPlus.toggle(enable: false);
     _applyReaderSystemUi(false);
     super.onClose();
   }
 
-  //获取初始页面位置
   int getInitLocation() {
     if (readerSettingsState.value.direction == ReaderDirection.upToDown) {
       try {
-        int value = int.parse(Get.parameters["location"]!);
+        int value = int.parse(initialLocation);
         currentLocation.value = value;
         initialVerticalOffset = value;
         return value;
@@ -168,7 +170,7 @@ class ReaderController extends GetxController {
       }
     } else {
       try {
-        int value = int.parse(Get.parameters["location"]!);
+        int value = int.parse(initialLocation);
         currentIndex.value = value;
         initialHorizontalIndex = value;
         return value;

@@ -41,4 +41,8 @@ class AppSubRouter {
   static void toCacheQueue() => _toContentPage(RoutePath.cacheQueue);
 
   static void toDevTools() => _toContentPage(RoutePath.devTools);
+
+  static void toReader({required String cid, required String location}) => _toContentPage(RoutePath.reader, arg: {'cid': cid, 'location': location});
+
+  static void toReaderSetting() => _toContentPage(RoutePath.readerSetting);
 }

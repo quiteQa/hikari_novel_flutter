@@ -52,7 +52,7 @@ class SwitchTile extends StatelessWidget {
   }
 }
 
-class SliderTile extends StatelessWidget {
+class SliderTile extends StatefulWidget {
   final String title;
   final Widget leading;
   final num min;
@@ -60,8 +60,7 @@ class SliderTile extends StatelessWidget {
   final int divisions;
   final int decimalPlaces;
   final num value;
-  final void Function(double value) onChanged;
-  final void Function(double value)? onChangeEnd;
+  final void Function(double value) onChangeEnd;
 
   const SliderTile({
     super.key,
@@ -72,22 +71,49 @@ class SliderTile extends StatelessWidget {
     required this.divisions,
     this.decimalPlaces = 2,
     required this.value,
-    required this.onChanged,
-    this.onChangeEnd,
+    required this.onChangeEnd,
   });
+
+  @override
+  State<SliderTile> createState() => _SliderTileState();
+}
+
+class _SliderTileState extends State<SliderTile> {
+  late double _dragValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _dragValue = widget.value.toDouble();
+  }
+
+  @override
+  void didUpdateWidget(SliderTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _dragValue = widget.value.toDouble();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: leading,
+      leading: widget.leading,
       title: Row(
         children: [
-          Text(title, style: kBaseTileTitleTextStyle),
+          Text(widget.title, style: kBaseTileTitleTextStyle),
           const Spacer(),
-          Text(value.toStringAsFixed(decimalPlaces), style: kBaseTileSubtitleTextStyle),
+          Text(_dragValue.toStringAsFixed(widget.decimalPlaces), style: kBaseTileSubtitleTextStyle),
         ],
       ),
-      subtitle: Slider(min: min.toDouble(), max: max.toDouble(), divisions: divisions, value: value.toDouble(), onChanged: onChanged, onChangeEnd: onChangeEnd),
+      subtitle: Slider(
+        min: widget.min.toDouble(),
+        max: widget.max.toDouble(),
+        divisions: widget.divisions,
+        value: _dragValue,
+        onChanged: (v) => setState(() => _dragValue = v),
+        onChangeEnd: widget.onChangeEnd,
+      ),
     );
   }
 }

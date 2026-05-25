@@ -40,59 +40,48 @@ class ReaderSettingPage extends StatelessWidget {
   }
 
   Widget _buildBasic(BuildContext context) {
+    final state = controller.readerSettingsState.value;
     return ListView(
       children: [
-        Obx(
-          () => SliderTile(
-            title: "font_size".tr,
-            leading: const Icon(Icons.format_size),
-            min: 7,
-            max: 48,
-            divisions: 41,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.fontSize,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(fontSize: value),
-            onChangeEnd: (value) => controller.changeFontSize(value),
-          ),
+        SliderTile(
+          title: "font_size".tr,
+          leading: const Icon(Icons.format_size),
+          min: 7,
+          max: 48,
+          divisions: 41,
+          decimalPlaces: 0,
+          value: state.fontSize,
+          onChangeEnd: (value) => controller.changeFontSize(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "line_spacing".tr,
-            leading: const Icon(Icons.format_line_spacing_outlined),
-            min: 0.1,
-            max: 3,
-            divisions: 29,
-            decimalPlaces: 1,
-            value: controller.readerSettingsState.value.lineSpacing,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(lineSpacing: value),
-            onChangeEnd: (value) => controller.changeLineSpacing(value),
-          ),
+        SliderTile(
+          title: "line_spacing".tr,
+          leading: const Icon(Icons.format_line_spacing_outlined),
+          min: 0.1,
+          max: 3,
+          divisions: 29,
+          decimalPlaces: 1,
+          value: state.lineSpacing,
+          onChangeEnd: (value) => controller.changeLineSpacing(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "para_indent".tr,
-            leading: const Icon(Icons.format_indent_increase),
-            min: 0,
-            max: 10,
-            divisions: 10,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.readerParaIndent,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(readerParaIndent: value.toInt()),
-            onChangeEnd: (value) => controller.changeReaderParaIndent(value.toInt()),
-          ),
+        SliderTile(
+          title: "para_indent".tr,
+          leading: const Icon(Icons.format_indent_increase),
+          min: 0,
+          max: 10,
+          divisions: 10,
+          decimalPlaces: 0,
+          value: state.readerParaIndent,
+          onChangeEnd: (value) => controller.changeReaderParaIndent(value.toInt()),
         ),
-        Obx(
-          () => SliderTile(
-            title: "para_spacing".tr,
-            leading: const Icon(Icons.expand),
-            min: 0,
-            max: 50,
-            divisions: 50,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.readerParaSpacing,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(readerParaSpacing: value.toInt()),
-            onChangeEnd: (value) => controller.changeReaderParaSpacing(value.toInt()),
-          ),
+        SliderTile(
+          title: "para_spacing".tr,
+          leading: const Icon(Icons.expand),
+          min: 0,
+          max: 50,
+          divisions: 50,
+          decimalPlaces: 0,
+          value: state.readerParaSpacing,
+          onChangeEnd: (value) => controller.changeReaderParaSpacing(value.toInt()),
         ),
         Obx(() {
           final sub = switch (controller.readerSettingsState.value.direction) {
@@ -181,11 +170,7 @@ class ReaderSettingPage extends StatelessWidget {
           ),
         ),
         Obx(() {
-          final dualPageMode = switch (controller.readerSettingsState.value.dualPageMode) {
-            DualPageMode.auto => Get.context!.shouldAutoUseDualPage(),
-            DualPageMode.enabled => true,
-            DualPageMode.disabled => false,
-          };
+          final dualPageMode = controller.readerSettingsState.value.dualPageMode.isEffective(Get.context!);
           return Offstage(
             offstage: !dualPageMode || controller.readerSettingsState.value.direction == ReaderDirection.upToDown,
             child: SliderTile(
@@ -196,7 +181,6 @@ class ReaderSettingPage extends StatelessWidget {
               divisions: 120,
               decimalPlaces: 1,
               value: controller.readerSettingsState.value.dualPageSpacing,
-              onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(dualPageSpacing: value),
               onChangeEnd: (value) => controller.changeDualPageSpacing(value),
             ),
           );
@@ -383,7 +367,6 @@ class ReaderSettingPage extends StatelessWidget {
                     divisions: 18,
                     decimalPlaces: 1,
                     value: tts.rate.value,
-                    onChanged: (v) => tts.rate.value = v,
                     onChangeEnd: (v) => tts.setRate(v),
                   ),
                 ),
@@ -396,7 +379,6 @@ class ReaderSettingPage extends StatelessWidget {
                     divisions: 15,
                     decimalPlaces: 1,
                     value: tts.pitch.value,
-                    onChanged: (v) => tts.pitch.value = v,
                     onChangeEnd: (v) => tts.setPitch(v),
                   ),
                 ),
@@ -409,7 +391,6 @@ class ReaderSettingPage extends StatelessWidget {
                     divisions: 20,
                     decimalPlaces: 2,
                     value: tts.volume.value,
-                    onChanged: (v) => tts.volume.value = v,
                     onChangeEnd: (v) => tts.setVolume(v),
                   ),
                 ),
@@ -437,73 +418,58 @@ class ReaderSettingPage extends StatelessWidget {
   }
 
   Widget _buildPadding() {
+    final state = controller.readerSettingsState.value;
     return ListView(
       children: [
-        Obx(
-          () => SliderTile(
-            title: "left_margin".tr,
-            leading: const Icon(Icons.border_left),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.leftMargin,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(leftMargin: value),
-            onChangeEnd: (value) => controller.changeLeftMargin(value),
-          ),
+        SliderTile(
+          title: "left_margin".tr,
+          leading: const Icon(Icons.border_left),
+          min: 0,
+          max: 100,
+          divisions: 100,
+          decimalPlaces: 0,
+          value: state.leftMargin,
+          onChangeEnd: (value) => controller.changeLeftMargin(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "top_margin".tr,
-            leading: const Icon(Icons.border_top),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.topMargin,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(topMargin: value),
-            onChangeEnd: (value) => controller.changeTopMargin(value),
-          ),
+        SliderTile(
+          title: "top_margin".tr,
+          leading: const Icon(Icons.border_top),
+          min: 0,
+          max: 100,
+          divisions: 100,
+          decimalPlaces: 0,
+          value: state.topMargin,
+          onChangeEnd: (value) => controller.changeTopMargin(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "right_margin".tr,
-            leading: const Icon(Icons.border_right),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.rightMargin,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(rightMargin: value),
-            onChangeEnd: (value) => controller.changeRightMargin(value),
-          ),
+        SliderTile(
+          title: "right_margin".tr,
+          leading: const Icon(Icons.border_right),
+          min: 0,
+          max: 100,
+          divisions: 100,
+          decimalPlaces: 0,
+          value: state.rightMargin,
+          onChangeEnd: (value) => controller.changeRightMargin(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "bottom_margin".tr,
-            leading: const Icon(Icons.border_bottom),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.bottomMargin,
-            onChanged: (value) => controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(bottomMargin: value),
-            onChangeEnd: (value) => controller.changeBottomMargin(value),
-          ),
+        SliderTile(
+          title: "bottom_margin".tr,
+          leading: const Icon(Icons.border_bottom),
+          min: 0,
+          max: 100,
+          divisions: 100,
+          decimalPlaces: 0,
+          value: state.bottomMargin,
+          onChangeEnd: (value) => controller.changeBottomMargin(value),
         ),
-        Obx(
-          () => SliderTile(
-            title: "bottomStatusBarHorizontalSpacing".tr,
-            leading: const Icon(Icons.swap_horiz),
-            min: 0,
-            max: 100,
-            divisions: 100,
-            decimalPlaces: 0,
-            value: controller.readerSettingsState.value.readerBottomStatusBarHorizontalSpacing,
-            onChanged: (value) =>
-                controller.readerSettingsState.value = controller.readerSettingsState.value.copyWith(readerBottomStatusBarHorizontalSpacing: value.toInt()),
-            onChangeEnd: (value) => controller.changeReaderBottomStatusBarHorizontalSpacing(value.toInt()),
-          ),
+        SliderTile(
+          title: "bottomStatusBarHorizontalSpacing".tr,
+          leading: const Icon(Icons.swap_horiz),
+          min: 0,
+          max: 100,
+          divisions: 100,
+          decimalPlaces: 0,
+          value: state.readerBottomStatusBarHorizontalSpacing,
+          onChangeEnd: (value) => controller.changeReaderBottomStatusBarHorizontalSpacing(value.toInt()),
         ),
       ],
     );

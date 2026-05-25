@@ -313,15 +313,15 @@ class CategoryView extends StatelessWidget {
         },
       ),
       PopupMenuItem(
-        child: const Text("JK"),
+        child: Text("JK".tr),
         onTap: () {
           controller.category.value = "JK".tr;
         },
       ),
       PopupMenuItem(
-        child: const Text("JC"),
+        child: Text("JC".tr),
         onTap: () {
-          controller.category.value = "JC";
+          controller.category.value = "JC".tr;
         },
       ),
       PopupMenuItem(

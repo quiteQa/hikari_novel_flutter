@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/models/page_state.dart';
@@ -6,6 +8,7 @@ import 'package:hikari_novel_flutter/models/browsing_history.dart';
 import '../../service/db_service.dart';
 
 class BrowsingHistoryController extends GetxController {
+  StreamSubscription? _historySub;
   Rx<PageState> pageState = Rx(PageState.loading);
   String errorMsg = "";
   RxList<BrowsingHistory> list = RxList();
@@ -17,7 +20,7 @@ class BrowsingHistoryController extends GetxController {
   }
 
   void _sync() async {
-    DBService.instance.getWatchableAllBrowsingHistory().listen((history) {
+    _historySub = DBService.instance.getWatchableAllBrowsingHistory().listen((history) {
       if (history.isEmpty) {
         pageState.value = PageState.empty;
         return;
@@ -26,6 +29,12 @@ class BrowsingHistoryController extends GetxController {
       list.addAll((history.map((e) => BrowsingHistory(aid: e.aid, title: e.title, img: e.img, time: e.time))));
       pageState.value = PageState.success;
     });
+  }
+
+  @override
+  void onClose() {
+    _historySub?.cancel();
+    super.onClose();
   }
 
   void deleteAllBrowsingHistory() {

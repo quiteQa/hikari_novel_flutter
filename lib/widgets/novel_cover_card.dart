@@ -30,7 +30,7 @@ class NovelCoverCard extends StatelessWidget {
                 httpHeaders: Request.userAgent,
                 fit: BoxFit.cover,
                 progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
-                errorWidget: (context, url, error) => Column(children: [Icon(Icons.error_outline), Text(error.toString())]),
+                errorWidget: (context, url, error) => const Column(children: [Icon(Icons.error_outline)]),
               ),
             ),
             Positioned.fill(
@@ -94,7 +94,7 @@ class BookshelfCoverCard extends StatelessWidget {
                     httpHeaders: Request.userAgent,
                     fit: BoxFit.cover,
                     progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
-                    errorWidget: (context, url, error) => Column(children: [Icon(Icons.error_outline), Text(error.toString())]),
+                    errorWidget: (context, url, error) => const Column(children: [Icon(Icons.error_outline)]),
                   ),
                 ),
                 Positioned.fill(

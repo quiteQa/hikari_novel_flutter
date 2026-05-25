@@ -205,6 +205,14 @@ class NovelDetailController extends GetxController with GetSingleTickerProviderS
     }
   }
 
+  Future<void> preloadCachedChapters(List<String> cids) async {
+    for (final cid in cids) {
+      if (await File("${_supportDir.path}/cached_chapter/${aid}_$cid.txt").exists()) {
+        cachedChapter.add(cid);
+      }
+    }
+  }
+
   void checkIsChapterCached(String cid) async {
     if (await File("${_supportDir.path}/cached_chapter/${aid}_$cid.txt").exists()) {
       cachedChapter.add(cid);
@@ -235,6 +243,7 @@ class NovelDetailController extends GetxController with GetSingleTickerProviderS
 
               pageState.value = PageState.success;
               await DBService.instance.upsertNovelDetail(NovelDetailEntityData(aid: aid, json: novelDetail.value!.toString())); //缓存小说详情
+              preloadCachedChapters(data.catalogue.expand((v) => v.chapters.map((c) => c.cid)).toList());
             }
           case Error():
             {
@@ -337,11 +346,7 @@ class NovelDetailController extends GetxController with GetSingleTickerProviderS
     if (data == null) {
       return false;
     } else {
-      bool isDualPage = switch (LocalStorageService.instance.getReaderDualPageMode()) {
-        DualPageMode.auto => Get.context!.shouldAutoUseDualPage(),
-        DualPageMode.enabled => true,
-        DualPageMode.disabled => false,
-      };
+      bool isDualPage = LocalStorageService.instance.getReaderDualPageMode().isEffective(Get.context!);
       bool isSameReaderMode = switch (LocalStorageService.instance.getReaderDirection()) {
         ReaderDirection.leftToRight => data.readerMode == kPageReadMode,
         ReaderDirection.rightToLeft => data.readerMode == kPageReadMode,

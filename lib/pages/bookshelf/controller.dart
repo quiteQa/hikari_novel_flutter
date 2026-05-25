@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hikari_novel_flutter/models/bookshelf.dart';
@@ -72,6 +74,8 @@ class BookshelfContentController extends GetxController {
   final BookshelfController _bookshelfController = Get.find();
   final MainController _mainController = Get.find();
 
+  StreamSubscription? _bookshelfSub;
+
   bool get isSelectionMode => _bookshelfController.isSelectionMode.value;
 
   Rxn<Bookshelf> bookshelf = Rxn();
@@ -82,7 +86,7 @@ class BookshelfContentController extends GetxController {
   void onReady() {
     super.onReady();
 
-    DBService.instance.getBookshelfByClassId(classId).listen((bss) async {
+    _bookshelfSub = DBService.instance.getBookshelfByClassId(classId).listen((bss) async {
       List<BookshelfNovelInfo> list = bss.map((i) => BookshelfNovelInfo(bid: i.bid, aid: i.aid, url: i.url, title: i.title, img: i.img)).toList();
 
       if (list.isEmpty) {
@@ -93,6 +97,12 @@ class BookshelfContentController extends GetxController {
         pageState.value = PageState.success;
       }
     });
+  }
+
+  @override
+  void onClose() {
+    _bookshelfSub?.cancel();
+    super.onClose();
   }
 
   void toggleCoverSelection(String aid) {

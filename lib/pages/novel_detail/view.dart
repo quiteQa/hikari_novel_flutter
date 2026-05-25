@@ -214,6 +214,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
 
   Widget _buildInfo(BuildContext context) {
     final detail = controller.novelDetail.value!;
+    final coverProvider = CachedNetworkImageProvider(detail.imgUrl, headers: Request.userAgent);
     return Stack(
       children: [
         Positioned.fill(
@@ -222,13 +223,10 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
             child: Blur(
               blur: 3,
               blurColor: Theme.of(context).colorScheme.surface,
-              child: CachedNetworkImage(
+              child: Image(
+                image: coverProvider,
                 width: double.infinity,
-                imageUrl: detail.imgUrl,
-                httpHeaders: Request.userAgent,
                 fit: BoxFit.fitWidth,
-                progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
-                errorWidget: (context, url, error) => Column(children: [const Icon(Icons.error_outline), Text(error.toString())]),
               ),
             ),
           ),
@@ -260,14 +258,11 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                   clipBehavior: Clip.hardEdge,
                   child: GestureDetector(
                     onTap: () => Get.toNamed(RoutePath.photo, arguments: {"gallery_mode": false, "url": detail.imgUrl}),
-                    child: CachedNetworkImage(
+                    child: Image(
+                      image: coverProvider,
                       width: 120,
                       height: 180,
-                      imageUrl: detail.imgUrl,
-                      httpHeaders: Request.userAgent,
                       fit: BoxFit.cover,
-                      progressIndicatorBuilder: (context, url, downloadProgress) => Center(child: CircularProgressIndicator(value: downloadProgress.progress)),
-                      errorWidget: (context, url, error) => Column(children: [const Icon(Icons.error_outline), Text(error.toString())]),
                     ),
                   ),
                 ),
@@ -391,8 +386,6 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                   final chapterIndex = entry.key;
                   final chapter = entry.value;
 
-                  controller.checkIsChapterCached(chapter.cid); //检测当前章节是否已缓存
-
                   //使用FutureBuilder处理异步的阅读历史数据
                   return StreamBuilder(
                     stream: DBService.instance.getWatchableReadHistoryByCid(chapter.cid),
@@ -436,7 +429,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
                                     (currDirection == ReaderDirection.leftToRight || currDirection == ReaderDirection.rightToLeft))) {
                               location = history?.location ?? 0;
                             }
-                            Get.toNamed(RoutePath.reader, parameters: {"cid": chapter.cid, "location": "$location"});
+                            AppSubRouter.toReader(cid: chapter.cid, location: "$location");
                           },
                           onLongPress: () {
                             if (!controller.isSelectionMode.value) controller.enterSelectionMode();
@@ -473,7 +466,7 @@ class _NovelDetailPageState extends State<NovelDetailPage> {
               child: FloatingActionButton.extended(
                 onPressed: () {
                   if (history == null) return;
-                  Get.toNamed(RoutePath.reader, parameters: {"cid": history.cid, "location": "${history.location}"});
+                  AppSubRouter.toReader(cid: history.cid, location: "${history.location}");
                 },
                 label: Row(children: [const Icon(Icons.play_arrow), const SizedBox(width: 10), Text("continue_reading".tr)]),
               ),
