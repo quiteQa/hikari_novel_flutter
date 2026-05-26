@@ -14,7 +14,7 @@
   <p align="center"><font>使用Flutter构建的第三方轻小说文库客户端</font></p>
 
   <div>
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/15dd/hikari_novel_flutter?style=for-the-badge&color=%23408A23">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/quiteQa/hikari_novel_flutter?style=for-the-badge&color=%23408A23">
     <img alt="License" src="https://img.shields.io/badge/License-MIT-Green?style=for-the-badge&color=rgb(164%2C25%2C49)">
   </div>
 
@@ -59,7 +59,8 @@
 
 
 ## 📦 安装
-- 本项目不提供安装包，请参考下方 `编译` 自行编译使用
+- Android 用户可从 [GitHub Releases](https://github.com/quiteQa/hikari_novel_flutter/releases/latest) 下载最新 APK 安装包
+- 如需其他平台，请参考下方 `编译` 自行编译
 
 
 ## 💻 编译
