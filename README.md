@@ -3,6 +3,8 @@
 
 <hr>
 
+> **注意**：此项目由原项目 [15dd/hikari_novel_flutter](https://github.com/15dd/hikari_novel_flutter) 经 AI 辅助修改而来，可能存在未知问题，请谨慎使用。
+
 <div align="center">
 
   <div align="center">
@@ -59,8 +61,7 @@
 
 
 ## 📦 安装
-- Android 用户可从 [GitHub Releases](https://github.com/quiteQa/hikari_novel_flutter/releases/latest) 下载最新 APK 安装包
-- 如需其他平台，请参考下方 `编译` 自行编译
+- 本项目不提供安装包，请参考下方 `编译` 自行编译使用
 
 
 ## 💻 编译
